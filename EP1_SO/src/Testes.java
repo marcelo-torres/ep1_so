@@ -5,9 +5,10 @@ public class Testes {
 		
 		int numeroDeProblemas = 0;
 		
-		numeroDeProblemas += BCP.testar();
-		numeroDeProblemas += RoundRobin.testar();
-		numeroDeProblemas += FilasMultiplas.testar();
+		numeroDeProblemas = BCP.testar()
+						  + RoundRobin.testar()
+						  + FilasMultiplas.testar()
+						  + FilaDeEspera.testar();
 		
 		return numeroDeProblemas;
 	}
@@ -26,7 +27,7 @@ public class Testes {
 		if(numeroDeProblemas == 0) {
 			System.out.println("\tNENHUM erro foi encontrado");
 		} else {
-			System.out.println("\t[!] - " + numeroDeProblemas + " FOM ENCONTRADOS!!!");
+			System.out.println("\t[!] - " + numeroDeProblemas + " PROBLEMAS FORAM ENCONTRADOS!!!");
 		}
 		
 	}

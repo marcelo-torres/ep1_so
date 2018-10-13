@@ -85,7 +85,8 @@ public class BCP {
 	public String toString() {
 		String s = "(" + this.nomeDoProcesso + ")"
 				 + "{C: " + this.creditosDoProcesso + ""
-				 + " P: " + this.prioridadeDoProcesso + "}";
+				 + " P: " + this.prioridadeDoProcesso + ""
+				 + " PC=" + this.contadorDePrograma + "}";
 		
 		return s;
 	}
@@ -129,6 +130,10 @@ public class BCP {
 		return this.segmentoDeTexto;
 	}
 	
+	
+	public void definirContadorDePrograma(int contadorDePrograma) {
+		this.contadorDePrograma = contadorDePrograma;
+	}
 	
 	public int contadorDePrograma() {
 		return this.contadorDePrograma;

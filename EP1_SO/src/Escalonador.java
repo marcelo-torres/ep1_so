@@ -8,10 +8,12 @@ import java.util.Iterator;
 
 public class Escalonador {
 	
+	public static final int TEMPO_DE_ESPERA = 2;
+	
 	private TabelaDeProcessos tabelaDeProcessos;
 	private CPU cpu;
 	private FilasMultiplas filaDePronto;
-	private LinkedList<BCP> filaDeBloqueado;
+	private FilaDeEspera filaDeBloqueado;
 	
 	private int quantum;
 	
@@ -21,7 +23,7 @@ public class Escalonador {
 		this.tabelaDeProcessos = new TabelaDeProcessos(10);
 		this.cpu = cpu;
 		this.filaDePronto = new FilasMultiplas();
-		this.filaDeBloqueado = new LinkedList<BCP>();
+		this.filaDeBloqueado = new FilaDeEspera(TEMPO_DE_ESPERA);
 		
 		this.quantum = quantum;
 	}
@@ -33,29 +35,46 @@ public class Escalonador {
 		BCP bcpAnterior = null;
 		
 		while(this.filaDePronto.quantidadeDeProcessos() > 0 
-				|| this.filaDeBloqueado.size() > 0) {
+				|| this.filaDeBloqueado.tamanho() > 0) {
 		
+			if(filaDePronto.quantidadeDeProcessos() 
+					== filaDePronto.quantidadeDeProcessosSemCreditos() 
+					&& this.filaDeBloqueado.tamanho() == 0) {
+				
+				this.filaDePronto.redistribuirCreditos();
+			}
+			
 			if(filaDePronto.quantidadeDeProcessos() > 0) {
-				BCP bcp = filaDePronto.removerProximo();
+				BCP bcp = this.escalonar();
 				
 				if(bcpAnterior != bcp) {
-					this.cpu.salvarContexto(bcpAnterior);
+					if(bcpAnterior != null) {
+						this.cpu.salvarContexto(bcpAnterior);
+					}
 					this.cpu.carregarProcesso(bcp);
 				}
 				
-				// quantum
-				this.cpu.executarProcesso(-1);
+				bcp.definirProcessoComoExecutando();
+				this.cpu.executarProcesso(this.quantum * bcp.quanta());
+				bcp.duplicarQuanta();
+				System.out.println("Executando: " + bcp + " " + bcp.contadorDePrograma() + "\n"); // TODO remover isso
 				
 				if(cpu.interrucaoDeES()) {
-					
+					this.inserirNaFilaDeBloqueado(bcp);
+				} else if(cpu.fimDoProcesso()) {
+					this.tabelaDeProcessos.removerProcesso(bcp);
+					System.out.println("Removendo: " + bcp + " " + bcp.contadorDePrograma());
+				} else {
+					this.inserirNaFilaDePronto(bcp);
 				}
 				
-				if(cpu.fimDoProcesso()) {
-					this.tabelaDeProcessos.removerProcesso(bcp);
-				}
+				bcpAnterior = bcp;
 			}
 			
-			// decrementar fila de bloqueado e mover para a de pronto quem merece
+			BCP[] bcpsProntos = this.filaDeBloqueado.decrementarTempoEspera();
+			for(BCP bcpPronto : bcpsProntos) {
+				this.inserirNaFilaDePronto(bcpPronto);
+			}
 		}
 	}
 	
@@ -72,24 +91,28 @@ public class Escalonador {
 			this.inserirNaFilaDePronto(bcp);
 		}
 	}
-
+	
+	public BCP escalonar() {
+		//return this.filaDePronto.removerProximo();
+		BCP bcp = this.filaDePronto.removerProximo();
+		System.out.println("Escalonado: " + bcp);
+		return bcp;
+	}
+	
 	private void inserirNaFilaDePronto(BCP bcp) {
 		bcp.definirProcessoComoPronto();
+		System.out.println("Inserido na fila de pronto: " + bcp);
 		this.filaDePronto.inserirNaFila(bcp);
 	}
 	
 	private void inserirNaFilaDeBloqueado(BCP bcp) {
-		
+		bcp.definirProcessoComoBloqueado();
+		System.out.println("Inserido na fila de bloqueado: " + bcp);
+		this.filaDeBloqueado.inserirNaFila(bcp);
 	}
 	
-	public BCP escalonar() {
-		
-		// Verificar situacoes adversar e retorna
-		
-		return null;
-	}
 	
-
+	
 	public static void main(String[] args) {
 		
 		File arquivoDoQuantum = new File("processos/quantum.txt");
@@ -130,6 +153,7 @@ public class Escalonador {
 			System.exit(1);
 		}
 		
+		escalonador.iniciar();
 	}
 	
 }

@@ -257,21 +257,20 @@ public class FilasMultiplas {
 		return bcpRemovido;
 	}
 		
-	/**
-	 * 
-	 * ATENCAO ! ! ! ! ! ! ! ! ! ! ! ! !  ! ! O.o
-	 * 
-	 * Este metodo sera util quando for necessario verificar se eh mais vanatajoso
-	 * escalonar
-	 * 
-	 * @return
-	 */
-	public int maiorPrioridade() {
-		if(this.filasRoundRobin == null) {
-			return 0;
+	public boolean redistribuirCreditos() {
+		
+		if(this.quantidadeDeProcessos() == this.quantidadeDeProcessosSemCreditos()) {
+			return false;
 		}
 		
-		return this.filasRoundRobin.peek().creditos();
+		while(this.filaDeCreditoZero.tamanho() > 0) {
+			BCP bcp = this.filaDeCreditoZero.removerPrimeiro();
+			int prioridade = bcp.prioridadeDoProcesso();
+			bcp.definirCreditosDoProcesso(prioridade);
+			this.inserirNaFila(bcp);
+		}
+		
+		return true;
 	}
 		
 }
