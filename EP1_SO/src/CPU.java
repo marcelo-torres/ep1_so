@@ -53,6 +53,18 @@ public class CPU {
 			throw new IllegalArgumentException("O quantum deve ser positivo");
 		}
 		
+		int instrucoesExecutadas = 0;
+		
+		while(instrucoesExecutadas < quantum) {
+			
+			if(contadorDePrograma == 21) {
+				this.fimDoProcesso = true;
+			}
+			
+			this.contadorDePrograma++;
+			instrucoesExecutadas++;
+		}
+		
 		/*
 		 * Retorno: o numero de quanta que o processo executou
 		 */
@@ -61,6 +73,8 @@ public class CPU {
 	}
 	
 	public void salvarContexto(BCP bcp) {
+		
+		bcp.definirContadorDePrograma(this.contadorDePrograma);
 		
 	}
 }
