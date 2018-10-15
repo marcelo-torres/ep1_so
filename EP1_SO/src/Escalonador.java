@@ -32,6 +32,7 @@ public class Escalonador {
 	
 	public void iniciar() {
 		
+		BCP bcp = null;
 		BCP bcpAnterior = null;
 		
 		while(this.filaDePronto.quantidadeDeProcessos() > 0 
@@ -44,8 +45,9 @@ public class Escalonador {
 				this.filaDePronto.redistribuirCreditos();
 			}
 			
+			
 			if(filaDePronto.quantidadeDeProcessos() > 0) {
-				BCP bcp = this.escalonar();
+				bcp = this.escalonar();
 				
 				if(bcpAnterior != bcp) {
 					if(bcpAnterior != null) {
@@ -59,6 +61,11 @@ public class Escalonador {
 				bcp.duplicarQuanta();
 				System.out.println("Executando: " + bcp + " " + bcp.contadorDePrograma() + "\n"); // TODO remover isso
 				
+				BCP[] bcpsProntos = this.filaDeBloqueado.decrementarTempoEspera();
+				for(BCP bcpPronto : bcpsProntos) {
+					this.inserirNaFilaDePronto(bcpPronto);
+				}
+				
 				if(cpu.interrucaoDeES()) {
 					this.cpu.resetarInterrupcaoDeES();
 					this.inserirNaFilaDeBloqueado(bcp);
@@ -69,15 +76,15 @@ public class Escalonador {
 					this.inserirNaFilaDePronto(bcp);
 				}
 				
-				
-				
 				bcpAnterior = bcp;
+				
+			} else {
+				BCP[] bcpsProntos = this.filaDeBloqueado.decrementarTempoEspera();
+				for(BCP bcpPronto : bcpsProntos) {
+					this.inserirNaFilaDePronto(bcpPronto);
+				}
 			}
 			
-			BCP[] bcpsProntos = this.filaDeBloqueado.decrementarTempoEspera();
-			for(BCP bcpPronto : bcpsProntos) {
-				this.inserirNaFilaDePronto(bcpPronto);
-			}
 		}
 	}
 	
