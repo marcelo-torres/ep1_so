@@ -1,8 +1,8 @@
-
 public class CPU {
 
     private String[] segmentoDeTexto;
 
+    private int instrucoesExecutadas;
     private int contadorDePrograma;
     private int registradorX;
     private int registradorY;
@@ -13,6 +13,7 @@ public class CPU {
     public CPU() {
         this.segmentoDeTexto = null;
 
+        this.instrucoesExecutadas = 0;
         this.contadorDePrograma = -1;
         this.registradorX = 0;
         this.registradorY = 0;
@@ -33,6 +34,18 @@ public class CPU {
         return this.fimDoProcesso;
     }
 
+    public int getInstrucoesExecutadas (){
+        return this.instrucoesExecutadas;
+    }
+    
+    public int getRegistradorX (){
+        return this.registradorX;
+    }
+    
+    public int getRegistradorY (){
+        return this.registradorY;
+    }
+    
     public void carregarProcesso(BCP bcp) {
 
         this.segmentoDeTexto = bcp.segmentoDeTexto();
@@ -47,26 +60,19 @@ public class CPU {
 
     public int executarProcesso(int quantum) {
         
-        System.out.println("quantum: " + quantum);
+        instrucoesExecutadas = 0;
         if (quantum < 1) {
             throw new IllegalArgumentException("O quantum deve ser positivo");
         }
 
-        int instrucoesExecutadas = 0;
+        //int instrucoesExecutadas = 0;
         String instrucao;
         
         while (instrucoesExecutadas < quantum) {
-
-            if (contadorDePrograma == 21) {
-                //this.fimDoProcesso = true;
-            }
-            
-        /**
-         * IGNORA O CODIGO FEIO E NAO DESISTE DE MIM S2
-         */     
+  
         
             instrucao = this.segmentoDeTexto[this.contadorDePrograma];
-            System.out.println(instrucao);
+            //System.out.println(instrucao);
             
             this.contadorDePrograma++;
             instrucoesExecutadas++;
@@ -96,9 +102,7 @@ public class CPU {
         }
 
         
-        if (instrucoesExecutadas > 1)
-            System.out.println("Interrompido apos " + instrucoesExecutadas + " instrucoes");
-        else System.out.println("Interrompido apos " + instrucoesExecutadas + " instrucao");
+        
         
         /*
          * Retorno: o numero de quanta que o processo executou
@@ -112,4 +116,6 @@ public class CPU {
         bcp.definirContadorDePrograma(this.contadorDePrograma);
 
     }
+    
+    
 }
