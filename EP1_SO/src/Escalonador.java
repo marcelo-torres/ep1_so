@@ -60,6 +60,7 @@ public class Escalonador {
 				System.out.println("Executando: " + bcp + " " + bcp.contadorDePrograma() + "\n"); // TODO remover isso
 				
 				if(cpu.interrucaoDeES()) {
+					this.cpu.resetarInterrupcaoDeES();
 					this.inserirNaFilaDeBloqueado(bcp);
 				} else if(cpu.fimDoProcesso()) {
 					this.tabelaDeProcessos.removerProcesso(bcp);
@@ -67,6 +68,8 @@ public class Escalonador {
 				} else {
 					this.inserirNaFilaDePronto(bcp);
 				}
+				
+				
 				
 				bcpAnterior = bcp;
 			}

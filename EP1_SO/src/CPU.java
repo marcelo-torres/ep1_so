@@ -21,6 +21,10 @@ public class CPU {
         this.fimDoProcesso = false;
     }
 
+    public void resetarInterrupcaoDeES() {
+    	this.interrupcaoDeES = false;
+    }
+    
     public boolean interrucaoDeES() {
         return this.interrupcaoDeES;
     }
@@ -51,46 +55,43 @@ public class CPU {
         int instrucoesExecutadas = 0;
         String instrucao;
         
-        while (instrucoesExecutadas < quantum ) {
+        while (instrucoesExecutadas < quantum) {
 
             if (contadorDePrograma == 21) {
-                this.fimDoProcesso = true;
+                //this.fimDoProcesso = true;
             }
             
         /**
          * IGNORA O CODIGO FEIO E NAO DESISTE DE MIM S2
          */     
         
-            instrucao = segmentoDeTexto[instrucoesExecutadas];
+            instrucao = this.segmentoDeTexto[this.contadorDePrograma];
             System.out.println(instrucao);
-
+            
+            this.contadorDePrograma++;
+            instrucoesExecutadas++;
+            
             if (instrucao.charAt(0) == 'X'){
                 String var = Character.toString(instrucao.charAt(2));
                 int x = Integer.parseInt(var);
                 this.registradorX = x;
-
             }
 
-            if (instrucao.charAt(0) == 'Y'){
+            else if (instrucao.charAt(0) == 'Y'){
                 String var = Character.toString(instrucao.charAt(2));
                 int y = Integer.parseInt(var);
                 this.registradorY = y;
             }
 
-            if (instrucao.charAt(0) == 'E'){
+            else if (instrucao.charAt(0) == 'E'){
                 this.interrupcaoDeES = true;
-
                 break;
             }
 
-            if (instrucao.charAt(0) == 'S'){
+            else if (instrucao.charAt(0) == 'S'){
                 this.fimDoProcesso = true;
                 break;
             }
-
-                
-            this.contadorDePrograma++;
-            instrucoesExecutadas++;
             
         }
 
