@@ -1,3 +1,4 @@
+package classes_antigas;
 public class CPU {
 
     private String[] segmentoDeTexto;
