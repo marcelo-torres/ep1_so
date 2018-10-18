@@ -17,7 +17,7 @@ public class Relogio {
 	
 	public void gerarCiclo() throws InterrupcaoDeRelogio {
 		
-		if(this.contadorDeCiclos + 1 > this.limiteDeCiclos) {
+		if(this.contadorDeCiclos == this.limiteDeCiclos) {
 			int numeroDeCiclos = this.contadorDeCiclos;
 			this.contadorDeCiclos = 0;
 			throw new InterrupcaoDeRelogio(numeroDeCiclos, "O tempo acabou");

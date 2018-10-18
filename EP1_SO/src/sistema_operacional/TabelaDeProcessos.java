@@ -21,18 +21,36 @@ public class TabelaDeProcessos {
 	}
 	
 	
-	public boolean inserirBcp(BCP bcp) {
+	public int inserirBcp(BCP bcp) {
 		
-		return false;
+		if(this.filaDeEspacosDisponiveis.size() == 0) {
+			return -1;
+		}
+		
+		int indice = this.filaDeEspacosDisponiveis.remove();
+		this.tabela[indice] = bcp;
+		
+		return indice;
 	}
 	
 	public BCP acessarBcpNoIndice(int indice) {
 		
-		return null;
+		if(indice < 0 || indice > this.tabela.length) {
+			throw new IllegalArgumentException("Nao eh possivel acessar o indice "
+					+ indice + " posicao invalida");
+		}
+		
+		return this.tabela[indice];
 	}
 	
-	public boolean liberarIndice(int indice) {
+	public void liberarIndice(int indice) {
 		
-		return false;
+		if(indice < 0 || indice > this.tabela.length) {
+			throw new IllegalArgumentException("Nao eh possivel acessar o indice "
+					+ indice + " posicao invalida");
+		}
+		
+		this.tabela[indice] = null;
+		this.filaDeEspacosDisponiveis.add(indice);
 	}
 }
