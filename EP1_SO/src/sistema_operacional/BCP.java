@@ -19,9 +19,13 @@ public class BCP {
 	private int prioridadeDoProcesso;
 	private int creditosDoProcesso;
 	
-	private Registrador contadorDePrograma;
-	private Registrador x;
-	private Registrador y;
+	private int valorDoContadorDePrograma;
+	private int valorDoRegistradorX;
+	private int valorDoRegistradorY;
+	
+	private int quantidadeDeQuantum;
+	
+	private int quantumDoProcesso;
 	
 	
 	/**
@@ -84,27 +88,33 @@ public class BCP {
 	}
 	
 	
-	public void definirContadorDePrograma(Registrador contadorDePrograma) {
-		this.contadorDePrograma.copiarValorDe(contadorDePrograma);
+	public void definirValorDoContadorDePrograma(int valor) {
+		this.valorDoContadorDePrograma = valor;
 	}
 	
-	public int contadorDePrograma() {
-		return this.contadorDePrograma;
+	public int valorDoContadorDePrograma() {
+		return this.valorDoContadorDePrograma;
 	}
 	
-	public int registradorX() {
-		return this.registradorX;
+	public int definirValorDoRegistradorX() {
+		return this.valorDoRegistradorX;
 	}
 	
-	public int registradorY() {
-		return this.registradorY;
+	public int definirValorDoRegistradorY() {
+		return this.valorDoRegistradorY;
 	}
 	
-	public int quanta() {
-		return this.quanta;
+	public int quantidadeDeQuantum() {
+		return this.quantidadeDeQuantum;
 	}
 	
-	public void duplicarQuanta() {
-		this.quanta *= 2;
+	public void definirQuantidadeDeQuantum(int quantidadeDeQuantum) {
+		if(quantidadeDeQuantum < 1) {
+			throw new IllegalArgumentException("A quantidade de quantum deve ser positiva");
+		}
+	}
 	
+	public int quantumDoProcesso() {
+		return this.quantumDoProcesso;
+	}
 }

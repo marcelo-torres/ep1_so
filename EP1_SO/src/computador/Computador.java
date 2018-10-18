@@ -12,6 +12,7 @@ public class Computador {
 	public Computador() {
 		this.relogio = new Relogio();
 		this.processador = new Processador(this.relogio);
+		this.sistemaOperacional = new SistemaOperacional(relogio, processador);
 	}
 	
 }

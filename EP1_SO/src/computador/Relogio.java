@@ -16,14 +16,14 @@ public class Relogio {
 	}
 	
 	public void gerarCiclo() throws InterrupcaoDeRelogio {
-		this.contadorDeCiclos++;
 		
-		if(this.contadorDeCiclos >= this.limiteDeCiclos) {
+		if(this.contadorDeCiclos + 1 > this.limiteDeCiclos) {
 			int numeroDeCiclos = this.contadorDeCiclos;
 			this.contadorDeCiclos = 0;
 			throw new InterrupcaoDeRelogio(numeroDeCiclos, "O tempo acabou");
+		} else {
+			this.contadorDeCiclos++;
 		}
-		
 	}
 	
 	public void zerarRelogio() {

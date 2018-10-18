@@ -1,6 +1,7 @@
 package computador.processador;
 
 import computador.Relogio;
+import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
 
 public class Processador {
@@ -21,16 +22,16 @@ public class Processador {
 	}
 	
 	
-	public void executar() throws InterrupcaoDeRelogio {
+	public void executar() throws InterrupcaoDeRelogio, InterrupcaoDeEntradaSaida {
 		
 		while(true) {
+			this.relogio.gerarCiclo();
 			
 			/*
 			 * faz a interpretacao dos comandos
 			 * 
 			 */
 			
-			this.relogio.gerarCiclo();
 		}
 		
 	}
