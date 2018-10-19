@@ -5,6 +5,7 @@ import computador.processador.Processador;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
@@ -27,7 +28,7 @@ public class SistemaOperacional {
 	
 	private final int QUANTUM;
 	
-	private LinkedList<BCP>[] filaDePronto;
+	private PriorityQueue<FilaDePrioridade> filaDePronto;
 	private LinkedList<BCP> filaDeBloqueado;
 	
 	private Relogio relogio;
@@ -43,9 +44,12 @@ public class SistemaOperacional {
 			this.QUANTUM = quantum;
 		}
 		
+		this.filaDePronto = new PriorityQueue<FilaDePrioridade>();
+		this.filaDeBloqueado = new LinkedList<BCP>();
+		
 		this.relogio = relogio;
 		this.processador = processador;
-		this.escalonador = new Escalonador();
+		this.escalonador = new Escalonador(this.filaDePronto, this.filaDeBloqueado);
 		this.despachador = new Despachador(processador, escalonador);
 		this.tabelaDeProcessos = new TabelaDeProcessos(10);
 	}

@@ -16,8 +16,6 @@ public class Computador {
 	private Processador processador;
 	private SistemaOperacional sistemaOperacional;
 	
-	private PriorityQueue<RoundRobin> filaDePronto;
-	
 	public Computador() {
 		
 		int quantum = -1;

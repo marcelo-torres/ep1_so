@@ -6,6 +6,7 @@ public class Main {
 		
 		Computador computador = new Computador();
 		computador.ligar();
+		System.out.println("classe main");
 		
 	}
 }

@@ -24,8 +24,9 @@ public class BCP {
 	private int valorDoRegistradorY;
 	
 	private int quantidadeDeQuantum;
-	
 	private int quantumDoProcesso;
+	
+	private int tempoDeEspera;
 	
 	
 	/**
@@ -104,6 +105,7 @@ public class BCP {
 		return this.valorDoRegistradorY;
 	}
 	
+	
 	public int quantidadeDeQuantum() {
 		return this.quantidadeDeQuantum;
 	}
@@ -116,5 +118,14 @@ public class BCP {
 	
 	public int quantumDoProcesso() {
 		return this.quantumDoProcesso;
+	}
+	
+	
+	private void definirTempoDeEspera(int tempoDeEspera) {
+		this.tempoDeEspera = tempoDeEspera;
+	}
+	
+	private int tempoDeEspera() {
+		return this.tempoDeEspera;
 	}
 }
