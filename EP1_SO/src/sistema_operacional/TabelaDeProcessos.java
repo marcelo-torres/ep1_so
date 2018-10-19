@@ -43,7 +43,22 @@ public class TabelaDeProcessos {
 		return this.tabela[indice];
 	}
 	
-	public void liberarIndice(int indice) {
+	public void liberarEntrada(BCP bcp) {
+		
+		if(bcp == null) {
+			throw new IllegalArgumentException("Nao eh possivel acessar um elemento null");
+		}
+		
+		for(int i = 0; i < this.tabela.length; i++) {
+			if(this.tabela[i] == bcp) {
+				this.tabela[i] = null;
+				this.filaDeEspacosDisponiveis.add(i);
+				break;
+			}
+		}
+	}
+	
+	public void liberarEntrada(int indice) {
 		
 		if(indice < 0 || indice > this.tabela.length) {
 			throw new IllegalArgumentException("Nao eh possivel acessar o indice "

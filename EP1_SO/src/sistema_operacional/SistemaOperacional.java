@@ -4,6 +4,7 @@ import computador.processador.Processador;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 
 import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
@@ -25,6 +26,9 @@ public class SistemaOperacional {
 	};
 	
 	private final int QUANTUM;
+	
+	private LinkedList<BCP>[] filaDePronto;
+	private LinkedList<BCP> filaDeBloqueado;
 	
 	private Relogio relogio;
 	private Processador processador;
@@ -83,7 +87,7 @@ public class SistemaOperacional {
 					this.relogio.zerarRelogio();
 					int numeroDeInstrucoesExecutadas = this.processador.executar();
 					
-					this.tabelaDeProcessos.liberarIndice(-1);
+					this.tabelaDeProcessos.liberarEntrada(bcpAtual);
 				} catch(InterrupcaoDeRelogio ir) {
 					this.escalonador.inserirNaFilaDePronto(bcpAtual);
 					// Dobrar o quantum aqui?

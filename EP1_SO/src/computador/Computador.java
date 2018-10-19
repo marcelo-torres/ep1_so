@@ -1,6 +1,7 @@
 package computador;
 
 import java.io.File;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 import computador.processador.Processador;
@@ -15,6 +16,7 @@ public class Computador {
 	private Processador processador;
 	private SistemaOperacional sistemaOperacional;
 	
+	private PriorityQueue<RoundRobin> filaDePronto;
 	
 	public Computador() {
 		
