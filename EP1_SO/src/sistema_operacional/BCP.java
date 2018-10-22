@@ -23,9 +23,7 @@ public class BCP {
 	private int valorDoRegistradorX;
 	private int valorDoRegistradorY;
 	
-	private int quantidadeDeQuantum;
 	private int quantumDoProcesso;
-	
 	private int tempoDeEspera;
 	
 	
@@ -84,6 +82,15 @@ public class BCP {
 		this.creditosDoProcesso = creditosDoProcesso;
 	}
 	
+	public void decrementarCreditosDoProcesso() {
+		
+		if(this.creditosDoProcesso() < 1) {
+			throw new RuntimeException("Os creditos do processo nao podem ser menores do que 0");
+		}
+		
+		this.creditosDoProcesso--;
+	}
+	
 	public int creditosDoProcesso() {
 		return this.creditosDoProcesso;
 	}
@@ -97,23 +104,29 @@ public class BCP {
 		return this.valorDoContadorDePrograma;
 	}
 	
-	public int definirValorDoRegistradorX() {
+	public void definirValorDoRegistradorX(int valor) {
+		this.valorDoRegistradorX = valor;
+	}
+	
+	public int valorDoRegistradorX() {
 		return this.valorDoRegistradorX;
 	}
 	
-	public int definirValorDoRegistradorY() {
+	public void definirValorDoRegistradorY(int valor) {
+		this.valorDoRegistradorY = valor;
+	}
+	
+	public int valorDoRegistradorY() {
 		return this.valorDoRegistradorY;
 	}
 	
 	
-	public int quantidadeDeQuantum() {
-		return this.quantidadeDeQuantum;
+	public void definirQuantumDoProcesso(int quantum) {
+		this.quantumDoProcesso = quantum;
 	}
 	
-	public void definirQuantidadeDeQuantum(int quantidadeDeQuantum) {
-		if(quantidadeDeQuantum < 1) {
-			throw new IllegalArgumentException("A quantidade de quantum deve ser positiva");
-		}
+	public void duplicarQuantumDoProcesso() {
+		this.quantumDoProcesso *= 2;
 	}
 	
 	public int quantumDoProcesso() {
@@ -121,11 +134,30 @@ public class BCP {
 	}
 	
 	
-	private void definirTempoDeEspera(int tempoDeEspera) {
+	public void definirTempoDeEspera(int tempoDeEspera) {
 		this.tempoDeEspera = tempoDeEspera;
 	}
 	
-	private int tempoDeEspera() {
+	public void decrementarTempoDeEspera() {
+		
+		if(this.tempoDeEspera <= 0) {
+			throw new RuntimeException("O tempo de espera nao pode ser menor do que 0");
+		}
+		
+		this.tempoDeEspera--;
+	}
+	
+	public int tempoDeEspera() {
 		return this.tempoDeEspera;
+	}
+	
+	@Override
+	public String toString() {
+		String s = "[" + this.nomeDoProcesso
+				 + " C=" + this.creditosDoProcesso
+				 + " P=" + this.prioridadeDoProcesso
+				 +"]";
+				 
+		return s;
 	}
 }

@@ -14,7 +14,7 @@ public class FilaDePrioridade implements Comparable<FilaDePrioridade> {
 	
 	@Override
 	public String toString() {
-		String s = Integer.toString(this.creditos);
+		String s = Integer.toString(this.creditos) + "-->";
 		
 		Object[] o = this.fila.toArray();
 		

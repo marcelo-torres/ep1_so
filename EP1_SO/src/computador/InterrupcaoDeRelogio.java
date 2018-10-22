@@ -2,16 +2,16 @@ package computador;
 
 public class InterrupcaoDeRelogio extends InterrupcaoDeHardware {
 
-	private int contadorDeCiclos;
+	private int quantidadeDeCiclosExecutados;
 	
 	
-	public InterrupcaoDeRelogio(int contadorDeCiclos, String mensagem) {
+	public InterrupcaoDeRelogio(int quantidadeDeCiclosExecutados, String mensagem) {
 		super(mensagem);
-		this.contadorDeCiclos = contadorDeCiclos;
+		this.quantidadeDeCiclosExecutados = quantidadeDeCiclosExecutados;
 	}
 	
 	
-	public int contadorDeCiclos() {
-		return this.contadorDeCiclos;
+	public int quantidadeDeCiclosExecutados() {
+		return this.quantidadeDeCiclosExecutados;
 	}
 }

@@ -1,7 +1,7 @@
 package computador;
 
 import java.io.File;
-import java.util.PriorityQueue;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import computador.processador.Processador;
@@ -16,30 +16,29 @@ public class Computador {
 	private Processador processador;
 	private SistemaOperacional sistemaOperacional;
 	
-	public Computador() {
+	public Computador() throws Exception {
 		
+		int quantum = this.obterQuantum(this.nomeDoArquivoDoQuantum);
+		
+		this.relogio = new Relogio();
+		this.processador = new Processador(this.relogio);
+		this.sistemaOperacional = new SistemaOperacional(diretorioPrincipal, quantum, relogio, processador);
+	}
+	
+	
+	private int obterQuantum(String nomeDoArquivoDoQuantum) throws Exception {
 		int quantum = -1;
 		File arquivoDoQuantum = new File(nomeDoArquivoDoQuantum);
 		 try (Scanner leitor = new Scanner(arquivoDoQuantum)) {
 			quantum = leitor.nextInt();
-		} catch (Exception e) {
-			System.out.println("[!] - Erro ao ler o quantum.");
-			System.out.println("\t" + e.getMessage());
-			System.exit(1);
+		} catch (FileNotFoundException fnfe) {
+			throw new Exception("[!] - Erro ao ler o quantum: " + fnfe.getMessage());
 		}
 		
-		this.relogio = new Relogio();
-		this.processador = new Processador(this.relogio);
-		this.sistemaOperacional = new SistemaOperacional(quantum, relogio, processador);
+		return quantum;
 	}
 	
-	
 	public void ligar() {
-		
-		/**
-		 * TODO perguntar para o professor quis sao os valores que os registradores
-		 *  x e y podem assim, tipo 0 < x < 9, ou mais?
-		 */
 		
 		try {
 			this.sistemaOperacional.iniciarSistema();

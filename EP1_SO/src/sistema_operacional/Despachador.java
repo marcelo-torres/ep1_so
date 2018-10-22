@@ -14,23 +14,37 @@ public class Despachador {
 	}
 	
 	
-	public BCP despachar(BCP bcpAnterior) {
+	public void salvarContexto(BCP bcp) {
 		
-		BCP bcpAtual = this.escalonador.escalonar();
+		if(bcp == null) return;
 		
-		if(bcpAtual != bcpAnterior) {
-			this.salvarContexto(bcpAnterior);
-			this.restaurarContexto(bcpAtual);
+		int valorDoContadorDePrograma = this.processador.valorDoContadorDePrograma();
+		int valorDoRegistradorX = this.processador.valorDoRegistradorX();
+		int valorDoRegistradorY = this.processador.valorDoRegistradorY();
+		
+		bcp.definirValorDoContadorDePrograma(valorDoContadorDePrograma);
+		bcp.definirValorDoRegistradorX(valorDoRegistradorX);
+		bcp.definirValorDoRegistradorY(valorDoRegistradorY);
+		
+		if(bcp.creditosDoProcesso() > 0) {
+			bcp.decrementarCreditosDoProcesso();
 		}
+		bcp.duplicarQuantumDoProcesso();
+	}
+	
+	public void restaurarContexto(BCP bcp) {
 		
-		return bcpAtual;
-	}
-	
-	private void salvarContexto(BCP bcp) {
 		if(bcp == null) return;
-	}
-	
-	private void restaurarContexto(BCP bcp) {
-		if(bcp == null) return;
+		
+		int valorDoContadorDePrograma = bcp.valorDoContadorDePrograma();
+		int valorDoRegistradorX = bcp.valorDoRegistradorX();
+		int valorDoRegistradorY = bcp.valorDoRegistradorY();
+		
+		this.processador.definirValorDoContadorDePrograma(valorDoContadorDePrograma);
+		this.processador.definirValorDoRegistradorX(valorDoRegistradorX);
+		this.processador.definirValorDoRegistradorY(valorDoRegistradorY);
+		
+		String[] segmentoDeTexto = bcp.segmentoDeTexto();
+		this.processador.definirSegmentoDeTexto(segmentoDeTexto);
 	}
 }
