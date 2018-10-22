@@ -35,7 +35,7 @@ public class SistemaOperacional {
 	private final int TEMPO_ESPERA;
 	private final int QUANTUM;
 	
-	private TreeSet<FilaDePrioridade> filaDePronto;
+	private FilaDePrioridade[] filaDePronto;
 	private LinkedList<BCP> filaDeBloqueado;
 	
 	private Relogio relogio;
@@ -45,7 +45,8 @@ public class SistemaOperacional {
 	private TabelaDeProcessos tabelaDeProcessos;
 	
 	public SistemaOperacional(String diretorioDeArquivos, int quantum,
-							  Relogio relogio, Processador processador) {
+							  Relogio relogio, Processador processador)
+									  throws FileNotFoundException {
 		
 		this.diretorioDeArquivos = diretorioDeArquivos;
 		this.TEMPO_ESPERA = 2;
@@ -56,16 +57,54 @@ public class SistemaOperacional {
 			this.QUANTUM = quantum;
 		}
 		
-		this.filaDePronto = new TreeSet<FilaDePrioridade>();
+		this.filaDePronto = this.criarFilaDePronto();
 		this.filaDeBloqueado = new LinkedList<BCP>();
 		
 		this.relogio = relogio;
 		this.processador = processador;
-		this.escalonador = new Escalonador(this.filaDePronto, this.filaDeBloqueado, this.TEMPO_ESPERA);
+		this.escalonador = new Escalonador(this.filaDePronto, this.filaDeBloqueado, 
+										   this.TEMPO_ESPERA);
 		this.despachador = new Despachador(processador, escalonador);
 		this.tabelaDeProcessos = new TabelaDeProcessos(10);
 	}
 	
+	
+	private FilaDePrioridade[] criarFilaDePronto() throws FileNotFoundException {
+		
+		int maiorPrioridade = this.obterMaiorPrioridade();
+		
+		FilaDePrioridade[] filaDePrioridade = new FilaDePrioridade[maiorPrioridade + 1];
+		this.inicializarFilaDePronto(filaDePrioridade);
+		return filaDePrioridade;
+	}
+	
+	private void inicializarFilaDePronto(FilaDePrioridade[] filaDePronto) {
+		for(int prioridade = 0; prioridade < filaDePronto.length; prioridade++) {
+			filaDePronto[prioridade] = new FilaDePrioridade(prioridade);
+		}
+	}
+	
+	private int obterMaiorPrioridade() throws FileNotFoundException {
+		
+		int maiorPrioridade = 0;
+		
+		File arquivoDePrioridades = new File(this.diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
+		
+		try(Scanner leitorDePrioridades = new Scanner(arquivoDePrioridades)) {
+			
+			while(leitorDePrioridades.hasNext()) {
+				int prioridade = leitorDePrioridades.nextInt();
+				if(prioridade > maiorPrioridade) {
+					maiorPrioridade = prioridade;
+				}
+			}
+			
+		} catch(FileNotFoundException fnfe) {
+			throw new FileNotFoundException(fnfe.getMessage());
+		}
+			
+		return maiorPrioridade;
+	}
 	
 	public void iniciarSistema() throws FileNotFoundException {
 		this.criarProcessosDeInicializacao();	
@@ -74,7 +113,7 @@ public class SistemaOperacional {
 	
 	public void criarProcessosDeInicializacao() throws FileNotFoundException {
 		
-		File arquivoDePrioridades = new File(diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
+		File arquivoDePrioridades = new File(this.diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
 		
 		try(Scanner leitorDePrioridades = new Scanner(arquivoDePrioridades)) {
 			for(String nomeDeArquivoDeProcesso : this.vetorDeProcessosInicias) {

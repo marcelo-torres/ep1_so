@@ -45,6 +45,7 @@ public class Computador {
 		} catch(Exception e) {
 			System.out.println("Nao foi possivel iniciar o sistema:");
 			System.out.println("\t" + e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}

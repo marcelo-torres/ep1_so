@@ -10,14 +10,14 @@ public class Escalonador {
 	private final int TEMPO_DE_ESPERA;
 	private int quantidadeTotalDeProcessos;
 	
-	private TreeSet<FilaDePrioridade> filaDePronto;
+	private FilaDePrioridade[] filaDePronto;
 	private int quantidadeDeProcessosProntos;
 	private int quantidadeDeProcessosProntosSemCreditos;
 	
 	private LinkedList<BCP> filaDeBloqueado;
 	
 	
-	public Escalonador(TreeSet<FilaDePrioridade> filaDePronto,
+	public Escalonador(FilaDePrioridade[] filaDePronto,
 					   LinkedList<BCP> filaDeBloqueado,
 					   int tempoDeEspera) {
 		
@@ -36,28 +36,20 @@ public class Escalonador {
 	}
 	
 	
+	private FilaDePrioridade filaDePrioridadeCorrespondente(BCP bcp) {
+		
+		if(bcp.creditosDoProcesso() >= this.filaDePronto.length) {
+			throw new IllegalArgumentException("O processo possui mais creditos do que o valor maximo da fila");
+		}
+		
+		int indiceDaFilaDeInsercao = bcp.creditosDoProcesso();
+		return this.filaDePronto[indiceDaFilaDeInsercao];
+	}
+	
 	public boolean inserirNaFilaDePronto(BCP bcp) {
 		
 		bcp.definirProcessoComoPronto();
-
-		FilaDePrioridade filaDeInsercao = null;
-		Iterator<FilaDePrioridade> iterador = this.filaDePronto.iterator();
-		
-		while(iterador.hasNext()) {
-			FilaDePrioridade fila = iterador.next();
-			
-			if(fila.creditos() <= bcp.creditosDoProcesso()) {
-				if(fila.creditos() == bcp.creditosDoProcesso()) {
-					filaDeInsercao = fila;
-				}
-				break;
-			}
-		}
-		
-		if(filaDeInsercao == null) {
-			filaDeInsercao = new FilaDePrioridade(bcp.creditosDoProcesso());
-			this.filaDePronto.add(filaDeInsercao);
-		}
+		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
 		
 		filaDeInsercao.inserirNoFinal(bcp);
 		this.quantidadeTotalDeProcessos++;
@@ -82,16 +74,20 @@ public class Escalonador {
 			return null;
 		}
 		
-		FilaDePrioridade filaDePrioridade = this.filaDePronto.first();
-			
-		// O proximo elemento eh o primeiro da fila de prioridade mais alta
-		BCP bcp = filaDePrioridade.removerPrimeiro();
+		FilaDePrioridade filaDeRemocao = null;
 		
-		if(filaDePrioridade.vazia()) {
-			// Se a fila de prioridade ficar vazia eh necessario remove-la
-			// da fila de pronto
-			this.filaDePronto.pollFirst();
+		int indiceDaFila = this.filaDePronto.length - 1;
+		while(filaDeRemocao == null && indiceDaFila >= 0) {
+			FilaDePrioridade fila = this.filaDePronto[indiceDaFila];
+			if(!fila.vazia()) {
+				filaDeRemocao = fila;
+			} else {
+				indiceDaFila--;
+			}
 		}
+		
+		// O proximo elemento eh o primeiro da fila de prioridade mais alta
+		BCP bcp = filaDeRemocao.removerPrimeiro();
 		
 		this.quantidadeTotalDeProcessos--;
 		this.quantidadeDeProcessosProntos--;
@@ -112,7 +108,7 @@ public class Escalonador {
 			return false;
 		}
 		
-		FilaDePrioridade filaDePrioridade = this.filaDePronto.pollFirst();
+		FilaDePrioridade filaDePrioridade = this.filaDePronto[0];
 		
 		while(filaDePrioridade.tamanho() > 0) {
 			BCP bcp = filaDePrioridade.removerPrimeiro();
@@ -196,7 +192,11 @@ public static int testar() {
 			System.out.println("\t" + bcp3);
 			System.out.println("\t" + bcp4 + "\n\n");
 			
-			TreeSet<FilaDePrioridade> filaDePronto = new TreeSet<FilaDePrioridade>();
+			FilaDePrioridade[] filaDePronto = new FilaDePrioridade[10];
+			for(int prioridade = 0; prioridade < filaDePronto.length; prioridade++) {
+				filaDePronto[prioridade] = new FilaDePrioridade(prioridade);
+			}
+			
 			LinkedList<BCP> filaDeBloqueado = new LinkedList<BCP>();
 			Escalonador escalonador = new Escalonador(filaDePronto, filaDeBloqueado, 2);
 			
@@ -315,7 +315,7 @@ public static int testar() {
 		
 	}
 
-	public static String toStringFilaDePronto(TreeSet<FilaDePrioridade> filaDePronto) {
+	public static String toStringFilaDePronto(FilaDePrioridade[] filaDePronto) {
 		
 		String s = "";
 		
