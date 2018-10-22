@@ -1,9 +1,6 @@
 package sistema_operacional;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.TreeSet;
 
 public class Escalonador {
 	
@@ -11,7 +8,7 @@ public class Escalonador {
 	private int quantidadeTotalDeProcessos;
 	
 	private FilaDePrioridade[] filaDePronto;
-	private int quantidadeDeProcessosProntos;
+	public int quantidadeDeProcessosProntos;
 	private int quantidadeDeProcessosProntosSemCreditos;
 	
 	private LinkedList<BCP> filaDeBloqueado;
@@ -112,6 +109,10 @@ public class Escalonador {
 		
 		while(filaDePrioridade.tamanho() > 0) {
 			BCP bcp = filaDePrioridade.removerPrimeiro();
+			this.quantidadeDeProcessosProntosSemCreditos--;
+			this.quantidadeDeProcessosProntos--;
+			this.quantidadeTotalDeProcessos--;
+			
 			int prioridade = bcp.prioridadeDoProcesso();
 			bcp.definirCreditosDoProcesso(prioridade);
 			this.inserirNaFilaDePronto(bcp);
@@ -119,6 +120,8 @@ public class Escalonador {
 		
 		return true;
 	}
+	
+	
 	
 	
 	public void inserirNaFilaDeBloqueado(BCP bcp) {
@@ -147,7 +150,7 @@ public class Escalonador {
 			
 			if(bcp.tempoDeEspera() == 0) {
 				this.filaDeBloqueado.removeFirst();
-				listaDeDesbloqueados.add(bcp);
+				listaDeDesbloqueados.addLast(bcp);
 				this.quantidadeTotalDeProcessos--;
 			} else {
 				break;

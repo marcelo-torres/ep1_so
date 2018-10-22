@@ -1,14 +1,13 @@
 package sistema_operacional;
 
+import gerador_de_log.GeradorDeLog;
+
 import computador.processador.Processador;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.TreeSet;
 
 import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
@@ -43,6 +42,10 @@ public class SistemaOperacional {
 	private Escalonador escalonador;
 	private Despachador despachador;
 	private TabelaDeProcessos tabelaDeProcessos;
+	
+	private int numeroDeProcessosCraidos;
+	private int numeroDeTrocas;
+	//private int numeroDe
 	
 	public SistemaOperacional(String diretorioDeArquivos, int quantum,
 							  Relogio relogio, Processador processador)
@@ -106,31 +109,22 @@ public class SistemaOperacional {
 		return maiorPrioridade;
 	}
 	
+	
 	public void iniciarSistema() throws FileNotFoundException {
 		this.criarProcessosDeInicializacao();	
 		this.iniciarExecucaoDeProcessos();
 	}
+	
 	
 	public void criarProcessosDeInicializacao() throws FileNotFoundException {
 		
 		File arquivoDePrioridades = new File(this.diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
 		
 		try(Scanner leitorDePrioridades = new Scanner(arquivoDePrioridades)) {
-			for(String nomeDeArquivoDeProcesso : this.vetorDeProcessosInicias) {
-				File arquivoDeProcesso = new File(diretorioDeArquivos + nomeDeArquivoDeProcesso);
-				
-				BCP bcp = new BCP(arquivoDeProcesso);
-				
-				this.tabelaDeProcessos.inserirBcp(bcp);
+			for(String nomeDoArquivoDeProcesso : this.vetorDeProcessosInicias) {
 				
 				int prioridadeDoProcesso = leitorDePrioridades.nextInt();
-				bcp.definirPrioridadeDoProcesso(prioridadeDoProcesso);
-				bcp.definirCreditosDoProcesso(prioridadeDoProcesso);
-				bcp.definirQuantumDoProcesso(this.QUANTUM);
-				
-				System.out.println("criando " + bcp);
-				System.out.println(Escalonador.toStringFilaDePronto(this.filaDePronto));
-				
+				BCP bcp = this.criarProcesso(nomeDoArquivoDeProcesso, prioridadeDoProcesso);
 				escalonador.inserirNaFilaDePronto(bcp);
 			}
 		} catch(FileNotFoundException fnfe) {
@@ -138,8 +132,25 @@ public class SistemaOperacional {
 		}
 	}
 	
+	private BCP criarProcesso(String nomeDoArquivo, int prioridadeDoProcesso) throws FileNotFoundException {
+		
+		// Cria o processo
+		File arquivoDeProcesso = new File(this.diretorioDeArquivos + nomeDoArquivo);
+		BCP bcp = new BCP(arquivoDeProcesso);
+		this.tabelaDeProcessos.inserirBcp(bcp);
+		
+		bcp.definirPrioridadeDoProcesso(prioridadeDoProcesso);
+		bcp.definirCreditosDoProcesso(prioridadeDoProcesso);
+		bcp.definirQuantumDoProcesso(this.QUANTUM);
+		
+		return bcp;
+	}
+	
+	
 	public void iniciarExecucaoDeProcessos() {
 	
+		GeradorDeLog.exibirMensagemDeCarregamento(this.filaDePronto);
+		
 		BCP bcpDoProcessoEscalonado = null;
 		
 		while(escalonador.existeProcesso()) {
@@ -167,31 +178,22 @@ public class SistemaOperacional {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.tabelaDeProcessos.liberarEntrada(bcpDoProcessoEscalonado);
 					
-					System.out.println(bcpDoProcessoEscalonado.nomeDoProcesso() + " terminado. "
-						+ "X=" + bcpDoProcessoEscalonado.valorDoRegistradorX() + ". Y=" + bcpDoProcessoEscalonado.valorDoRegistradorY());
+					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado);
 					
-					if(ir.quantidadeDeCiclosExecutados() == 1) {
-						System.out.println("Interrompendo " + bcpDoProcessoEscalonado.nomeDoProcesso()
-						+ " após " + ir.quantidadeDeCiclosExecutados() + " instrução.");
-					} else {
-						System.out.println("Interrompendo " + bcpDoProcessoEscalonado.nomeDoProcesso()
-						+ " após " + ir.quantidadeDeCiclosExecutados() + " instruções.");
-					}
+					GeradorDeLog.exibirMensagemDeInterrupcao(
+							bcpDoProcessoEscalonado.nomeDoProcesso(),
+							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
 					
 					System.out.println("E/S iniciada em " + bcpDoProcessoEscalonado.nomeDoProcesso());
-					if(ies.quantidadeDeCiclosExecutados() == 1) {
-						System.out.println("Interrompendo " + bcpDoProcessoEscalonado.nomeDoProcesso()
-						+ " após " + ies.quantidadeDeCiclosExecutados() + " instrução.");
-					} else {
-						System.out.println("Interrompendo " + bcpDoProcessoEscalonado.nomeDoProcesso()
-						+ " após " + ies.quantidadeDeCiclosExecutados() + " instruções.");
-					}
+					GeradorDeLog.exibirMensagemDeInterrupcao(
+							bcpDoProcessoEscalonado.nomeDoProcesso(),
+							ies.quantidadeDeCiclosExecutados());
 				}
 			}
 			

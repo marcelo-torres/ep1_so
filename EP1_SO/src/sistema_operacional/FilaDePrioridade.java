@@ -1,6 +1,8 @@
 package sistema_operacional;
 import java.util.LinkedList;
 
+import java.util.Iterator;
+
 public class FilaDePrioridade implements Comparable<FilaDePrioridade> {
 	
 	private int creditos;
@@ -37,6 +39,10 @@ public class FilaDePrioridade implements Comparable<FilaDePrioridade> {
 	
 	public int creditos() {
 		return this.creditos;
+	}
+	
+	public Iterator<BCP> iterador() {
+		return this.fila.iterator();
 	}
 	
 	public void inserirNoFinal(BCP bcp) {
