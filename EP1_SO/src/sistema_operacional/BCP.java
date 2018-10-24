@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 import computador.processador.Registrador;
 
-public class BCP {
+public class BCP implements Comparable<BCP> {
 
 	private static int NUMERO_MAXIMO_INSTRUCOES = 21;
 	
@@ -23,6 +23,7 @@ public class BCP {
 	private int valorDoRegistradorX;
 	private int valorDoRegistradorY;
 	
+	private int quantitadeDeQuantum;
 	private int quantumDoProcesso;
 	private int tempoDeEspera;
 	
@@ -45,6 +46,17 @@ public class BCP {
 		}
 		
 		leitor.close();
+	}
+	
+	
+	@Override
+	public int compareTo(BCP outro) {
+		
+		String nomeDesteProcesso = this.nomeDoProcesso;
+		String nomeDoOutroProcesso = outro.nomeDoProcesso;
+		
+		return nomeDesteProcesso.compareTo(nomeDoOutroProcesso);
+		
 	}
 	
 	
@@ -120,6 +132,18 @@ public class BCP {
 		return this.valorDoRegistradorY;
 	}
 	
+	
+	public void definirQuantidadeDeQuantum(int quantidade) {
+		this.quantitadeDeQuantum = quantidade;
+	}
+	
+	public void duplicarQuantidadeDeQuantum() {
+		this.quantitadeDeQuantum *= 2;
+	}
+	
+	public int quantitadeDeQuantum() {
+		return this.quantitadeDeQuantum;
+	}
 	
 	public void definirQuantumDoProcesso(int quantum) {
 		this.quantumDoProcesso = quantum;

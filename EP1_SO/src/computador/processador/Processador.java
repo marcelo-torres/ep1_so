@@ -1,4 +1,4 @@
-package computador.processador;
+ package computador.processador;
 
 import computador.Relogio;
 import computador.InterrupcaoDeEntradaSaida;

@@ -25,6 +25,12 @@ public class Computador {
 		this.sistemaOperacional = new SistemaOperacional(diretorioPrincipal, quantum, relogio, processador);
 	}
 	
+	public Computador(int quantum) throws Exception {
+		this.relogio = new Relogio();
+		this.processador = new Processador(this.relogio);
+		this.sistemaOperacional = new SistemaOperacional(diretorioPrincipal, quantum, relogio, processador);
+	}
+	
 	
 	private int obterQuantum(String nomeDoArquivoDoQuantum) throws Exception {
 		int quantum = -1;

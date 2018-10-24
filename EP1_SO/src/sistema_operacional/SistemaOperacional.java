@@ -6,6 +6,7 @@ import computador.processador.Processador;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -43,9 +44,10 @@ public class SistemaOperacional {
 	private Despachador despachador;
 	private TabelaDeProcessos tabelaDeProcessos;
 	
-	private int numeroDeProcessosCraidos;
+	private int numeroDeProcessosCriados;
 	private int numeroDeTrocas;
-	//private int numeroDe
+	private int numeroDeQuantaExecutados;
+	private int numeroDeIntrucoesExecutadas;
 	
 	public SistemaOperacional(String diretorioDeArquivos, int quantum,
 							  Relogio relogio, Processador processador)
@@ -110,9 +112,18 @@ public class SistemaOperacional {
 	}
 	
 	
-	public void iniciarSistema() throws FileNotFoundException {
-		this.criarProcessosDeInicializacao();	
-		this.iniciarExecucaoDeProcessos();
+	public void iniciarSistema() throws FileNotFoundException, Exception {
+		GeradorDeLog.iniciar("logs/", this.QUANTUM);
+		this.criarProcessosDeInicializacao();
+		
+		try {
+			this.iniciarExecucaoDeProcessos();
+		} catch(IOException ioe) {
+			throw new Exception("Erro ao escrever no arquivos de log: + "
+					+ ioe.getMessage());
+		} finally {
+			GeradorDeLog.finalizar();
+		}
 	}
 	
 	
@@ -125,7 +136,7 @@ public class SistemaOperacional {
 				
 				int prioridadeDoProcesso = leitorDePrioridades.nextInt();
 				BCP bcp = this.criarProcesso(nomeDoArquivoDeProcesso, prioridadeDoProcesso);
-				escalonador.inserirNaFilaDePronto(bcp);
+				escalonador.inserirOrdenado(bcp);
 			}
 		} catch(FileNotFoundException fnfe) {
 			throw new FileNotFoundException(fnfe.getMessage());
@@ -141,13 +152,16 @@ public class SistemaOperacional {
 		
 		bcp.definirPrioridadeDoProcesso(prioridadeDoProcesso);
 		bcp.definirCreditosDoProcesso(prioridadeDoProcesso);
+		bcp.definirQuantidadeDeQuantum(1);
 		bcp.definirQuantumDoProcesso(this.QUANTUM);
+		
+		this.numeroDeProcessosCriados++;
 		
 		return bcp;
 	}
 	
 	
-	public void iniciarExecucaoDeProcessos() {
+	public void iniciarExecucaoDeProcessos() throws IOException {
 	
 		GeradorDeLog.exibirMensagemDeCarregamento(this.filaDePronto);
 		
@@ -158,7 +172,9 @@ public class SistemaOperacional {
 			//System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
 			
 			if(escalonador.necessarioRedistribuirCreditos()) {
+				System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
 				this.escalonador.redistribuirCreditos();
+				System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
 			}
 			
 			bcpDoProcessoEscalonado = this.escalonador.escalonar();
@@ -168,25 +184,38 @@ public class SistemaOperacional {
 				this.relogio.definirLimiteDeCiclos(bcpDoProcessoEscalonado.quantumDoProcesso());
 				this.relogio.zerarRelogio();
 				
-				System.out.println("Executando " + bcpDoProcessoEscalonado.nomeDoProcesso());
+				this.numeroDeTrocas++;
+				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum();
+				
+				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso());
 				bcpDoProcessoEscalonado.definirProcessoComoExecutando();
 				try {
 					int numeroDeInstrucoesExecutadas = this.processador.executar();
 					
+					this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
+					
 					// Se nenhuma interrupcao for gerada significa que o processo
 					// chegou ao seu final
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
+					
+					// TODO remover esse metodo aqui, colocar no SO
 					this.tabelaDeProcessos.liberarEntrada(bcpDoProcessoEscalonado);
+					
+					this.numeroDeIntrucoesExecutadas += bcpDoProcessoEscalonado.valorDoContadorDePrograma();
 					
 					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
-					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
-					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado);
+					this.numeroDeQuantaExecutados += Math.ceil(ir.quantidadeDeCiclosExecutados() / (double)this.QUANTUM);
+					
+					boolean inserirNaFrente = this.despachador.salvarContexto(bcpDoProcessoEscalonado);
+					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado, inserirNaFrente);
 					
 					GeradorDeLog.exibirMensagemDeInterrupcao(
 							bcpDoProcessoEscalonado.nomeDoProcesso(),
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
+					this.numeroDeQuantaExecutados += Math.ceil(ies.quantidadeDeCiclosExecutados() / (double)this.QUANTUM);
+					
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
 					
@@ -201,8 +230,14 @@ public class SistemaOperacional {
 			LinkedList<BCP> desbloqueados = escalonador.obterListaDeDesbloqueados();
 			
 			for(BCP bcp : desbloqueados) {
-				this.escalonador.inserirNaFilaDePronto(bcp);
+				this.escalonador.inserirNaFilaDePronto(bcp, false);
 			}
 		}
+		
+		GeradorDeLog.imprimirEstatisticas(this.numeroDeProcessosCriados,
+										  this.numeroDeTrocas,
+										  this.numeroDeQuantaExecutados,
+										  this.numeroDeIntrucoesExecutadas,
+										  this.QUANTUM);
 	}
 }

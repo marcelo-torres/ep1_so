@@ -1,5 +1,6 @@
 package sistema_operacional;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class Escalonador {
@@ -43,12 +44,29 @@ public class Escalonador {
 		return this.filaDePronto[indiceDaFilaDeInsercao];
 	}
 	
-	public boolean inserirNaFilaDePronto(BCP bcp) {
+	public void inserirOrdenado(BCP bcp) {
+		
+		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
+		filaDeInsercao.fila.addLast(bcp);
+		Collections.sort(filaDeInsercao.fila);
+		
+		this.quantidadeTotalDeProcessos++;
+		this.quantidadeDeProcessosProntos++;
+		if(bcp.creditosDoProcesso() == 0) {
+			this.quantidadeDeProcessosProntosSemCreditos++;
+		}
+	}
+	
+	public boolean inserirNaFilaDePronto(BCP bcp,  boolean insercaoNaFrente) {
 		
 		bcp.definirProcessoComoPronto();
 		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
 		
-		filaDeInsercao.inserirNoFinal(bcp);
+		if(insercaoNaFrente) {
+			filaDeInsercao.fila.addFirst(bcp);
+		} else {
+			filaDeInsercao.inserirNoFinal(bcp);
+		}
 		this.quantidadeTotalDeProcessos++;
 		this.quantidadeDeProcessosProntos++;
 		if(bcp.creditosDoProcesso() == 0) {
@@ -110,12 +128,15 @@ public class Escalonador {
 		while(filaDePrioridade.tamanho() > 0) {
 			BCP bcp = filaDePrioridade.removerPrimeiro();
 			this.quantidadeDeProcessosProntosSemCreditos--;
-			this.quantidadeDeProcessosProntos--;
-			this.quantidadeTotalDeProcessos--;
+			//this.quantidadeDeProcessosProntos--;
+			//this.quantidadeTotalDeProcessos--;
 			
 			int prioridade = bcp.prioridadeDoProcesso();
+			
+			FilaDePrioridade filaDePrioridadeCorrespondente = this.filaDePrioridadeCorrespondente(bcp);
+			
 			bcp.definirCreditosDoProcesso(prioridade);
-			this.inserirNaFilaDePronto(bcp);
+			filaDePrioridadeCorrespondente.inserirOrdenado(bcp);
 		}
 		
 		return true;
@@ -203,16 +224,16 @@ public static int testar() {
 			LinkedList<BCP> filaDeBloqueado = new LinkedList<BCP>();
 			Escalonador escalonador = new Escalonador(filaDePronto, filaDeBloqueado, 2);
 			
-			escalonador.inserirNaFilaDePronto(bcp1);
+			escalonador.inserirNaFilaDePronto(bcp1, false);
 			System.out.println("Inserindo processo 1\n" + toStringFilaDePronto(filaDePronto));
 			
-			escalonador.inserirNaFilaDePronto(bcp2);
+			escalonador.inserirNaFilaDePronto(bcp2, false);
 			System.out.println("Inserindo processo 2\n" + toStringFilaDePronto(filaDePronto));
 			
-			escalonador.inserirNaFilaDePronto(bcp3);
+			escalonador.inserirNaFilaDePronto(bcp3, false);
 			System.out.println("Inserindo processo 3\n" + toStringFilaDePronto(filaDePronto));
 			
-			escalonador.inserirNaFilaDePronto(bcp4);
+			escalonador.inserirNaFilaDePronto(bcp4, false);
 			System.out.println("Inserindo processo 4\n" + toStringFilaDePronto(filaDePronto));
 			
 			BCP removido;
@@ -233,11 +254,11 @@ public static int testar() {
 			}
 			
 			bcp1.definirCreditosDoProcesso(0);
-			escalonador.inserirNaFilaDePronto(bcp1);
+			escalonador.inserirNaFilaDePronto(bcp1, false);
 			System.out.println("Devolvendo o processo 1 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			bcp4.definirCreditosDoProcesso(2);
-			escalonador.inserirNaFilaDePronto(bcp4);
+			escalonador.inserirNaFilaDePronto(bcp4, false);
 			System.out.println("Devolvendo o processo 4 com prioridade 2\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
@@ -265,7 +286,7 @@ public static int testar() {
 			}
 			
 			bcp3.definirCreditosDoProcesso(0);
-			escalonador.inserirNaFilaDePronto(bcp3);
+			escalonador.inserirNaFilaDePronto(bcp3, false);
 			System.out.println("Devolvendo o processo 3 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
@@ -285,11 +306,11 @@ public static int testar() {
 			}
 			
 			bcp2.definirCreditosDoProcesso(0);
-			escalonador.inserirNaFilaDePronto(bcp2);
+			escalonador.inserirNaFilaDePronto(bcp2, false);
 			System.out.println("Devolvendo o processo 2 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			bcp4.definirCreditosDoProcesso(0);
-			escalonador.inserirNaFilaDePronto(bcp4);
+			escalonador.inserirNaFilaDePronto(bcp4, false);
 			System.out.println("Devolvendo o processo 4 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();

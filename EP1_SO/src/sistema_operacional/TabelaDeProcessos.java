@@ -3,11 +3,12 @@ package sistema_operacional;
 import java.util.PriorityQueue;
 
 public class TabelaDeProcessos {
-
+	
 	private final int NUMERO_ESPACOS_DISPONIVEIS;
 	
 	private final BCP[] tabela;
 	private final PriorityQueue<Integer> filaDeEspacosDisponiveis;
+	
 	
 	public TabelaDeProcessos(int numeroDeEspacosDisponiveis) {
 		this.NUMERO_ESPACOS_DISPONIVEIS = numeroDeEspacosDisponiveis;

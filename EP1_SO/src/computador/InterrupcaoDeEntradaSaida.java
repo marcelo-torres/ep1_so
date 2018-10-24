@@ -1,6 +1,6 @@
 package computador;
 
-public class InterrupcaoDeEntradaSaida extends InterrupcaoDeHardware {
+public class InterrupcaoDeEntradaSaida extends Exception {
 
 	private int quantidadeDeCiclosExecutados;
 	

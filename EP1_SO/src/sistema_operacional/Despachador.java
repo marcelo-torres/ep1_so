@@ -14,22 +14,29 @@ public class Despachador {
 	}
 	
 	
-	public void salvarContexto(BCP bcp) {
+	
+	public boolean salvarContexto(BCP bcp) {
 		
-		if(bcp == null) return;
+		boolean drecrementouOsCreditos = false;
 		
-		int valorDoContadorDePrograma = this.processador.valorDoContadorDePrograma();
-		int valorDoRegistradorX = this.processador.valorDoRegistradorX();
-		int valorDoRegistradorY = this.processador.valorDoRegistradorY();
-		
-		bcp.definirValorDoContadorDePrograma(valorDoContadorDePrograma);
-		bcp.definirValorDoRegistradorX(valorDoRegistradorX);
-		bcp.definirValorDoRegistradorY(valorDoRegistradorY);
-		
-		if(bcp.creditosDoProcesso() > 0) {
-			bcp.decrementarCreditosDoProcesso();
+		if(bcp != null) {
+			int valorDoContadorDePrograma = this.processador.valorDoContadorDePrograma();
+			int valorDoRegistradorX = this.processador.valorDoRegistradorX();
+			int valorDoRegistradorY = this.processador.valorDoRegistradorY();
+			
+			bcp.definirValorDoContadorDePrograma(valorDoContadorDePrograma);
+			bcp.definirValorDoRegistradorX(valorDoRegistradorX);
+			bcp.definirValorDoRegistradorY(valorDoRegistradorY);
+			
+			if(bcp.creditosDoProcesso() > 0) {
+				bcp.decrementarCreditosDoProcesso();
+				drecrementouOsCreditos = true;
+			}
+			bcp.duplicarQuantidadeDeQuantum();
+			bcp.duplicarQuantumDoProcesso();
 		}
-		bcp.duplicarQuantumDoProcesso();
+		
+		return drecrementouOsCreditos;
 	}
 	
 	public void restaurarContexto(BCP bcp) {
