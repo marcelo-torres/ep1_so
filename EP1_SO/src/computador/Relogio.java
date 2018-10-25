@@ -29,33 +29,4 @@ public class Relogio {
 	public void zerarRelogio() {
 		this.contadorDeCiclos = 0;
 	}
-	
-	public static int testar() {
-		
-		int numeroDeProblemas = 0;
-		Relogio relogio = new Relogio();
-		
-		System.out.println("---------- Iniciando testes com o Processador ----------\n");
-		
-		{ // Teste 01
-			System.out.print("\nTeste 01: 3 ciclos com limite 3\n-> ");
-			
-			relogio.definirLimiteDeCiclos(3);
-			
-			try {
-				for(int x = 0; x < 3; x++) {
-					relogio.gerarCiclo();
-				}
-			} catch(InterrupcaoDeRelogio r) {
-				if(r.quantidadeDeCiclosExecutados() == 3) {
-					teste.Teste.exibirLogDeAcerto("");
-				} else {
-					teste.Teste.exibirLogDeErro("Numero errados de ciclos");
-					numeroDeProblemas++;
-				}
-			}
-		}
-		
-		return numeroDeProblemas;
-	}
 }
