@@ -4,8 +4,9 @@ import computador.processador.Processador;
 
 public class Despachador {
 
-	private Processador processador;
-	private Escalonador escalonador;
+	protected Processador processador;
+	protected Escalonador escalonador;
+	
 	
 	
 	public Despachador(Processador processador, Escalonador escalonador) {
@@ -15,7 +16,7 @@ public class Despachador {
 	
 	
 	
-	public boolean salvarContexto(BCP bcp) {
+	protected boolean salvarContexto(BCP bcp) {
 		
 		boolean drecrementouOsCreditos = false;
 		
@@ -32,14 +33,14 @@ public class Despachador {
 				this.decrementarCreditosDoProcesso(bcp);
 				drecrementouOsCreditos = true;
 			}
-			duplicarQuantidadeDeQuantum(bcp);
-			duplicarQuantumDoProcesso(bcp);
+			this.duplicarQuantidadeDeQuantum(bcp);
+			this.duplicarQuantumDoProcesso(bcp);
 		}
 		
 		return drecrementouOsCreditos;
 	}
 	
-	public void restaurarContexto(BCP bcp) {
+	protected void restaurarContexto(BCP bcp) {
 		
 		if(bcp == null) return;
 		
@@ -55,7 +56,9 @@ public class Despachador {
 		this.processador.definirSegmentoDeTexto(segmentoDeTexto);
 	}
 	
-	private void decrementarCreditosDoProcesso(BCP bcp) {
+	
+	
+	protected void decrementarCreditosDoProcesso(BCP bcp) {
 		if(bcp.creditosDoProcesso < 1) {
 			throw new RuntimeException("Os creditos do processo nao podem ser menores do que 0");
 		}
@@ -63,15 +66,15 @@ public class Despachador {
 		bcp.creditosDoProcesso--;
 	}
 	
-	private void duplicarQuantidadeDeQuantum(BCP bcp) {
+	protected void duplicarQuantidadeDeQuantum(BCP bcp) {
 		bcp.quantitadeDeQuantum *= 2;
 	}
 	
-	private void duplicarQuantumDoProcesso(BCP bcp) {
+	protected void duplicarQuantumDoProcesso(BCP bcp) {
 		bcp.quantumDoProcesso *= 2;
 	}
 	
-	private void decrementarTempoDeEspera(BCP bcp) {
+	protected void decrementarTempoDeEspera(BCP bcp) {
 		if(bcp.tempoDeEspera <= 0) {
 			throw new RuntimeException("O tempo de espera nao pode ser menor do que 0");
 		}

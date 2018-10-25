@@ -27,13 +27,16 @@ public class BCP implements Comparable<BCP> {
 	protected int quantumDoProcesso;
 	protected int tempoDeEspera;
 	
+	protected int numeroDoArquivo;
+	
+	
 	
 	/**
 	 * Cria um objeto BCP informacoes de um processo armazenado em um arquivo .txt
 	 * 
 	 * @param arquivo Arquivo .txt com as informacoes do processo
 	 */
-	public BCP(File arquivo) throws FileNotFoundException {
+	protected BCP(File arquivo) throws FileNotFoundException {
 		
 		Scanner leitor = new Scanner(arquivo);
 		
@@ -49,24 +52,11 @@ public class BCP implements Comparable<BCP> {
 	}
 	
 	
+	
 	@Override
 	public int compareTo(BCP outro) {
 		
-		String nomeDesteProcesso = this.nomeDoProcesso;
-		String nomeDoOutroProcesso = outro.nomeDoProcesso;
-		
-		return nomeDesteProcesso.compareTo(nomeDoOutroProcesso);
-		
-	}
-	
-	
-	@Override
-	public String toString() {
-		String s = "[" + this.nomeDoProcesso
-				 + " C=" + this.creditosDoProcesso
-				 + " P=" + this.prioridadeDoProcesso
-				 +"]";
-				 
-		return s;
+		// Mantem a ordenacao alfabetica pelo numero do arquivo quando necessario
+		return this.numeroDoArquivo - outro.numeroDoArquivo;
 	}
 }

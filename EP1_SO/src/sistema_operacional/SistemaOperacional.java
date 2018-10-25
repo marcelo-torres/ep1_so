@@ -30,7 +30,7 @@ public class SistemaOperacional {
 	private String nomeDoArquivoDePrioridades = "prioridades.txt";
 	private String diretorioDeArquivos;
 	
-	private final int TEMPO_ESPERA;
+	protected final int TEMPO_DE_ESPERA;
 	private final int QUANTUM;
 	
 	private FilaDePrioridade[] filaDePronto;
@@ -47,12 +47,18 @@ public class SistemaOperacional {
 	private int numeroDeQuantaExecutados;
 	private int numeroDeIntrucoesExecutadas;
 	
+	protected int quantidadeTotalDeProcessos;
+	protected int quantidadeDeProcessosProntos;
+	protected int quantidadeDeProcessosProntosSemCreditos;
+	
+	
+	
 	public SistemaOperacional(String diretorioDeArquivos, int quantum,
 							  Relogio relogio, Processador processador)
 									  throws FileNotFoundException {
 		
 		this.diretorioDeArquivos = diretorioDeArquivos;
-		this.TEMPO_ESPERA = 2;
+		this.TEMPO_DE_ESPERA = 2;
 		
 		if(quantum < 1) {
 			throw new IllegalArgumentException("O quantum deve ser positivo");
@@ -65,11 +71,17 @@ public class SistemaOperacional {
 		
 		this.relogio = relogio;
 		this.processador = processador;
-		this.escalonador = new Escalonador(this.filaDePronto, this.filaDeBloqueado, 
-										   this.TEMPO_ESPERA);
+		this.escalonador = new Escalonador(this, this.filaDePronto,
+										   this.filaDeBloqueado);
 		this.despachador = new Despachador(processador, escalonador);
 		this.tabelaDeProcessos = new TabelaDeProcessos(10);
 	}
+	
+	
+	
+	/* ###################################################################### */
+	/* ##################### CRIACAO DA FILA DE PRONTO ###################### */
+	/* ###################################################################### */
 	
 	
 	private FilaDePrioridade[] criarFilaDePronto() throws FileNotFoundException {
@@ -87,6 +99,9 @@ public class SistemaOperacional {
 		}
 	}
 	
+	/**
+	 * Retorna a maior prioridade possivel dado o arquivo de prioridades
+	 */
 	private int obterMaiorPrioridade() throws FileNotFoundException {
 		
 		int maiorPrioridade = 0;
@@ -110,6 +125,7 @@ public class SistemaOperacional {
 	}
 	
 	
+	
 	public void iniciarSistema() throws FileNotFoundException, Exception {
 		GeradorDeLog.iniciar("logs/", this.QUANTUM);
 		this.criarProcessosDeInicializacao();
@@ -125,6 +141,12 @@ public class SistemaOperacional {
 	}
 	
 	
+	
+	/* ###################################################################### */
+	/* ####################### CRIACAO DOS PROCESSOS ######################## */
+	/* ###################################################################### */
+	
+	
 	public void criarProcessosDeInicializacao() throws FileNotFoundException {
 		
 		File arquivoDePrioridades = new File(this.diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
@@ -134,7 +156,7 @@ public class SistemaOperacional {
 				
 				int prioridadeDoProcesso = leitorDePrioridades.nextInt();
 				BCP bcp = this.criarProcesso(nomeDoArquivoDeProcesso, prioridadeDoProcesso);
-				escalonador.inserirOrdenado(bcp);
+				escalonador.inserirOrdenadoNaFilaDePronto(bcp);
 			}
 		} catch(FileNotFoundException fnfe) {
 			throw new FileNotFoundException(fnfe.getMessage());
@@ -152,11 +174,31 @@ public class SistemaOperacional {
 		bcp.creditosDoProcesso = prioridadeDoProcesso;
 		bcp.quantitadeDeQuantum = 1;
 		bcp.quantumDoProcesso = this.QUANTUM;
+		bcp.numeroDoArquivo = this.obterNumeroDoArquivo(nomeDoArquivo);
 		
 		this.numeroDeProcessosCriados++;
 		
 		return bcp;
 	}
+	
+	/**
+	 *  Devolve o numero do arquivo no qual o processo esta guardado
+	 */
+	private int obterNumeroDoArquivo(String nomeDoArquivo) {
+		
+		String extensao = ".txt";
+		int limite = nomeDoArquivo.length() - extensao.length();
+		
+		String aux = nomeDoArquivo.substring(0, limite);
+		int numero = Integer.valueOf(aux);
+		return numero;
+	}
+	
+	
+	
+	/* ###################################################################### */
+	/* ################ GERENCIAMENTO DA TABELA DE PROCESSOS ################ */
+	/* ###################################################################### */
 	
 	
 	public void iniciarExecucaoDeProcessos() throws IOException {
@@ -165,14 +207,10 @@ public class SistemaOperacional {
 		
 		BCP bcpDoProcessoEscalonado = null;
 		
-		while(escalonador.existeProcesso()) {
-			
-			//System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
+		while(this.existeProcesso()) {
 			
 			if(escalonador.necessarioRedistribuirCreditos()) {
-				System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
-				this.escalonador.redistribuirCreditos();
-				System.out.println("\n" + Escalonador.toStringFilaDePronto(this.filaDePronto) + "\n");
+				this.redistribuirCreditos();
 			}
 			
 			bcpDoProcessoEscalonado = this.escalonador.escalonar();
@@ -239,6 +277,42 @@ public class SistemaOperacional {
 										  this.QUANTUM);
 	}
 	
+	protected boolean existeProcesso() {
+		return this.quantidadeTotalDeProcessos > 0;
+	}
+	
+	
+	
+	public boolean redistribuirCreditos() {
+		
+		if(this.quantidadeTotalDeProcessos != this.quantidadeDeProcessosProntosSemCreditos) {
+			return false;
+		}
+		
+		FilaDePrioridade filaDePrioridade = this.filaDePronto[0];
+		
+		while(filaDePrioridade.tamanho() > 0) {
+			BCP bcp = filaDePrioridade.removerPrimeiro();
+			this.quantidadeDeProcessosProntosSemCreditos--;
+			//this.quantidadeDeProcessosProntos--;
+			//this.quantidadeTotalDeProcessos--;
+			
+			int prioridade = bcp.prioridadeDoProcesso;
+			
+			FilaDePrioridade filaDePrioridadeCorrespondente = this.escalonador.filaDePrioridadeCorrespondente(bcp);
+			
+			bcp.creditosDoProcesso = prioridade;
+			filaDePrioridadeCorrespondente.inserirOrdenado(bcp);
+		}
+		
+		return true;
+	}
+	
+	
+	
+	/* ###################################################################### */
+	/* ################ GERENCIAMENTO DA TABELA DE PROCESSOS ################ */
+	/* ###################################################################### */
 	
 	public int inserirBcpNaTabelaDeProcessos(BCP bcp) {
 		

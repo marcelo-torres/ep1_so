@@ -16,10 +16,10 @@ public class Computador {
 	private Processador processador;
 	private SistemaOperacional sistemaOperacional;
 	
+	
+	
 	public Computador() throws Exception {
-		
 		int quantum = this.obterQuantum(this.nomeDoArquivoDoQuantum);
-		
 		this.relogio = new Relogio();
 		this.processador = new Processador(this.relogio);
 		this.sistemaOperacional = new SistemaOperacional(diretorioPrincipal, quantum, relogio, processador);
@@ -30,6 +30,7 @@ public class Computador {
 		this.processador = new Processador(this.relogio);
 		this.sistemaOperacional = new SistemaOperacional(diretorioPrincipal, quantum, relogio, processador);
 	}
+	
 	
 	
 	private int obterQuantum(String nomeDoArquivoDoQuantum) throws Exception {
@@ -44,6 +45,9 @@ public class Computador {
 		return quantum;
 	}
 	
+	/**
+	 * Liga o computador, isto eh, inicia o sistema operacional
+	 */
 	public void ligar() {
 		
 		try {
