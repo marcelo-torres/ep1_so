@@ -36,11 +36,11 @@ public class Escalonador {
 	
 	private FilaDePrioridade filaDePrioridadeCorrespondente(BCP bcp) {
 		
-		if(bcp.creditosDoProcesso() >= this.filaDePronto.length) {
+		if(bcp.creditosDoProcesso >= this.filaDePronto.length) {
 			throw new IllegalArgumentException("O processo possui mais creditos do que o valor maximo da fila");
 		}
 		
-		int indiceDaFilaDeInsercao = bcp.creditosDoProcesso();
+		int indiceDaFilaDeInsercao = bcp.creditosDoProcesso;
 		return this.filaDePronto[indiceDaFilaDeInsercao];
 	}
 	
@@ -52,14 +52,14 @@ public class Escalonador {
 		
 		this.quantidadeTotalDeProcessos++;
 		this.quantidadeDeProcessosProntos++;
-		if(bcp.creditosDoProcesso() == 0) {
+		if(bcp.creditosDoProcesso == 0) {
 			this.quantidadeDeProcessosProntosSemCreditos++;
 		}
 	}
 	
 	public boolean inserirNaFilaDePronto(BCP bcp,  boolean insercaoNaFrente) {
 		
-		bcp.definirProcessoComoPronto();
+		bcp.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
 		
 		if(insercaoNaFrente) {
@@ -69,7 +69,7 @@ public class Escalonador {
 		}
 		this.quantidadeTotalDeProcessos++;
 		this.quantidadeDeProcessosProntos++;
-		if(bcp.creditosDoProcesso() == 0) {
+		if(bcp.creditosDoProcesso == 0) {
 			this.quantidadeDeProcessosProntosSemCreditos++;
 		}
 		
@@ -106,7 +106,7 @@ public class Escalonador {
 		
 		this.quantidadeTotalDeProcessos--;
 		this.quantidadeDeProcessosProntos--;
-		if(bcp.creditosDoProcesso() == 0) {
+		if(bcp.creditosDoProcesso == 0) {
 			this.quantidadeDeProcessosProntosSemCreditos--;
 		}
 		
@@ -131,11 +131,11 @@ public class Escalonador {
 			//this.quantidadeDeProcessosProntos--;
 			//this.quantidadeTotalDeProcessos--;
 			
-			int prioridade = bcp.prioridadeDoProcesso();
+			int prioridade = bcp.prioridadeDoProcesso;
 			
 			FilaDePrioridade filaDePrioridadeCorrespondente = this.filaDePrioridadeCorrespondente(bcp);
 			
-			bcp.definirCreditosDoProcesso(prioridade);
+			bcp.creditosDoProcesso = prioridade;
 			filaDePrioridadeCorrespondente.inserirOrdenado(bcp);
 		}
 		
@@ -147,9 +147,9 @@ public class Escalonador {
 	
 	public void inserirNaFilaDeBloqueado(BCP bcp) {
 		
-		bcp.definirProcessoComoBloqueado();
+		bcp.estadoDoProcesso = EstadosDeProcesso.BLOQUEADO;
 		
-		bcp.definirTempoDeEspera(this.TEMPO_DE_ESPERA);
+		bcp.tempoDeEspera = this.TEMPO_DE_ESPERA;
 		this.filaDeBloqueado.addLast(bcp);
 		
 		this.quantidadeTotalDeProcessos++;
@@ -158,7 +158,7 @@ public class Escalonador {
 	public void decrementarFilaDeBloqueado() {
 		
 		for(BCP bcp : this.filaDeBloqueado) {
-			bcp.decrementarTempoDeEspera();
+			bcp.tempoDeEspera--;
 		}
 	}
 	
@@ -169,7 +169,7 @@ public class Escalonador {
 		while(this.filaDeBloqueado.size() > 0) {
 			BCP bcp = this.filaDeBloqueado.peekFirst();
 			
-			if(bcp.tempoDeEspera() == 0) {
+			if(bcp.tempoDeEspera == 0) {
 				this.filaDeBloqueado.removeFirst();
 				listaDeDesbloqueados.addLast(bcp);
 				this.quantidadeTotalDeProcessos--;
@@ -198,17 +198,17 @@ public static int testar() {
 			BCP bcp3 = new BCP(file3);
 			BCP bcp4 = new BCP(file4);
 			
-			bcp1.definirPrioridadeDoProcesso(5);
-			bcp1.definirCreditosDoProcesso(5);
+			bcp1.prioridadeDoProcesso = 5;
+			bcp1.creditosDoProcesso = 5;
 			
-			bcp2.definirPrioridadeDoProcesso(5);
-			bcp2.definirCreditosDoProcesso(2);
+			bcp2.prioridadeDoProcesso = 5;
+			bcp2.creditosDoProcesso =2;
 			
-			bcp3.definirPrioridadeDoProcesso(5);
-			bcp3.definirCreditosDoProcesso(3);
+			bcp3.prioridadeDoProcesso = 5;
+			bcp3.creditosDoProcesso = 3;
 			
-			bcp4.definirPrioridadeDoProcesso(5);
-			bcp4.definirCreditosDoProcesso(5);
+			bcp4.prioridadeDoProcesso = 5;
+			bcp4.creditosDoProcesso = 5;
 			
 			System.out.println("Porcessos a serem usados: ");
 			System.out.println("\t" + bcp1);
@@ -239,93 +239,93 @@ public static int testar() {
 			BCP removido;
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 1: ");
-			if(removido == bcp1) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp1) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 4: ");
-			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
-			bcp1.definirCreditosDoProcesso(0);
+			bcp1.creditosDoProcesso = 0;
 			escalonador.inserirNaFilaDePronto(bcp1, false);
 			System.out.println("Devolvendo o processo 1 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
-			bcp4.definirCreditosDoProcesso(2);
+			bcp4.creditosDoProcesso = 2;
 			escalonador.inserirNaFilaDePronto(bcp4, false);
 			System.out.println("Devolvendo o processo 4 com prioridade 2\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 3: ");
-			if(removido == bcp3) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp3) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 2: ");
-			if(removido == bcp2) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp2) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 4: ");
-			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
-			bcp3.definirCreditosDoProcesso(0);
+			bcp3.creditosDoProcesso = 0;
 			escalonador.inserirNaFilaDePronto(bcp3, false);
 			System.out.println("Devolvendo o processo 3 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 1: ");
-			if(removido == bcp1) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp1) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 3: ");
-			if(removido == bcp3) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp3) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
-			bcp2.definirCreditosDoProcesso(0);
+			bcp2.creditosDoProcesso = 0;
 			escalonador.inserirNaFilaDePronto(bcp2, false);
 			System.out.println("Devolvendo o processo 2 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
-			bcp4.definirCreditosDoProcesso(0);
+			bcp4.creditosDoProcesso = 0;
 			escalonador.inserirNaFilaDePronto(bcp4, false);
 			System.out.println("Devolvendo o processo 4 com prioridade 0\n" + toStringFilaDePronto(filaDePronto));
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 2: ");
-			if(removido == bcp2) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp2) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			
 			removido = escalonador.removerProximoDaFilaDePronto();
 			System.out.print("Removendo o processo 4: ");
-			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+			if(removido == bcp4) System.out.println("OK -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 			else {
-				System.out.println("ERRO! -> " + removido.nomeDoProcesso() + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
+				System.out.println("ERRO! -> " + removido.nomeDoProcesso + "\n" + toStringFilaDePronto(filaDePronto) + "\n");
 				numeroDeProblemas++;
 			}
 			

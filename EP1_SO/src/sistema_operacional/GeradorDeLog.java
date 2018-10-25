@@ -1,7 +1,4 @@
-package gerador_de_log;
-
-import sistema_operacional.BCP;
-import sistema_operacional.FilaDePrioridade;
+package sistema_operacional;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -53,9 +50,9 @@ public class GeradorDeLog {
 			
 			while(iterador.hasNext()) {
 				BCP bcp = iterador.next();
-				System.out.println("Carregando " + bcp.nomeDoProcesso());
+				System.out.println("Carregando " + bcp.nomeDoProcesso);
 				
-				GeradorDeLog.escridorDoLog.write("Carregando " + bcp.nomeDoProcesso() + "\n");
+				GeradorDeLog.escridorDoLog.write("Carregando " + bcp.nomeDoProcesso + "\n");
 			}
 		}
 		
@@ -84,13 +81,13 @@ public class GeradorDeLog {
 	}
 	
 	public static void exibirMensagemDeFimDeExecucao(BCP bcp)  throws IOException {
-		System.out.println(bcp.nomeDoProcesso() + " terminado. "
-						   + "X=" + bcp.valorDoRegistradorX()
-						   + ". Y=" + bcp.valorDoRegistradorY());
+		System.out.println(bcp.nomeDoProcesso + " terminado. "
+						   + "X=" + bcp.valorDoRegistradorX
+						   + ". Y=" + bcp.valorDoRegistradorY);
 		
-		GeradorDeLog.escridorDoLog.write(bcp.nomeDoProcesso() + " terminado. "
-										+ "X=" + bcp.valorDoRegistradorX()
-										+ ". Y=" + bcp.valorDoRegistradorY() + "\n");
+		GeradorDeLog.escridorDoLog.write(bcp.nomeDoProcesso + " terminado. "
+										+ "X=" + bcp.valorDoRegistradorX
+										+ ". Y=" + bcp.valorDoRegistradorY + "\n");
 	}
 	
 	public static void imprimirEstatisticas(int numeroDeProcessosCriados,

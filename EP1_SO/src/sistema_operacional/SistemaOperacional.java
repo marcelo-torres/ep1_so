@@ -1,7 +1,5 @@
 package sistema_operacional;
 
-import gerador_de_log.GeradorDeLog;
-
 import computador.processador.Processador;
 
 import java.io.File;
@@ -148,12 +146,12 @@ public class SistemaOperacional {
 		// Cria o processo
 		File arquivoDeProcesso = new File(this.diretorioDeArquivos + nomeDoArquivo);
 		BCP bcp = new BCP(arquivoDeProcesso);
-		this.tabelaDeProcessos.inserirBcp(bcp);
+		this.inserirBcpNaTabelaDeProcessos(bcp);
 		
-		bcp.definirPrioridadeDoProcesso(prioridadeDoProcesso);
-		bcp.definirCreditosDoProcesso(prioridadeDoProcesso);
-		bcp.definirQuantidadeDeQuantum(1);
-		bcp.definirQuantumDoProcesso(this.QUANTUM);
+		bcp.prioridadeDoProcesso = prioridadeDoProcesso;
+		bcp.creditosDoProcesso = prioridadeDoProcesso;
+		bcp.quantitadeDeQuantum = 1;
+		bcp.quantumDoProcesso = this.QUANTUM;
 		
 		this.numeroDeProcessosCriados++;
 		
@@ -181,14 +179,14 @@ public class SistemaOperacional {
 			
 			if(bcpDoProcessoEscalonado != null) {
 				this.despachador.restaurarContexto(bcpDoProcessoEscalonado);
-				this.relogio.definirLimiteDeCiclos(bcpDoProcessoEscalonado.quantumDoProcesso());
+				this.relogio.definirLimiteDeCiclos(bcpDoProcessoEscalonado.quantumDoProcesso);
 				this.relogio.zerarRelogio();
 				
 				this.numeroDeTrocas++;
 				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum();
 				
-				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso());
-				bcpDoProcessoEscalonado.definirProcessoComoExecutando();
+				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
+				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 				try {
 					int numeroDeInstrucoesExecutadas = this.processador.executar();
 					
@@ -199,9 +197,9 @@ public class SistemaOperacional {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					
 					// TODO remover esse metodo aqui, colocar no SO
-					this.tabelaDeProcessos.liberarEntrada(bcpDoProcessoEscalonado);
+					this.liberarEntradaNaTabelaDeProcessos(bcpDoProcessoEscalonado);
 					
-					this.numeroDeIntrucoesExecutadas += bcpDoProcessoEscalonado.valorDoContadorDePrograma();
+					this.numeroDeIntrucoesExecutadas += bcpDoProcessoEscalonado.valorDoContadorDePrograma;
 					
 					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
@@ -211,7 +209,7 @@ public class SistemaOperacional {
 					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado, inserirNaFrente);
 					
 					GeradorDeLog.exibirMensagemDeInterrupcao(
-							bcpDoProcessoEscalonado.nomeDoProcesso(),
+							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
 					this.numeroDeQuantaExecutados += Math.ceil(ies.quantidadeDeCiclosExecutados() / (double)this.QUANTUM);
@@ -219,9 +217,9 @@ public class SistemaOperacional {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
 					
-					System.out.println("E/S iniciada em " + bcpDoProcessoEscalonado.nomeDoProcesso());
+					System.out.println("E/S iniciada em " + bcpDoProcessoEscalonado.nomeDoProcesso);
 					GeradorDeLog.exibirMensagemDeInterrupcao(
-							bcpDoProcessoEscalonado.nomeDoProcesso(),
+							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ies.quantidadeDeCiclosExecutados());
 				}
 			}
@@ -239,5 +237,43 @@ public class SistemaOperacional {
 										  this.numeroDeQuantaExecutados,
 										  this.numeroDeIntrucoesExecutadas,
 										  this.QUANTUM);
+	}
+	
+	
+	public int inserirBcpNaTabelaDeProcessos(BCP bcp) {
+		
+		if(this.tabelaDeProcessos.filaDeEspacosDisponiveis.size() == 0) {
+			return -1;
+		}
+		
+		int indice = this.tabelaDeProcessos.filaDeEspacosDisponiveis.remove();
+		this.tabelaDeProcessos.tabela[indice] = bcp;
+		
+		return indice;
+	}
+	
+	public BCP acessarBcpNoIndiceNaTabela(int indice) {
+		
+		if(indice < 0 || indice > this.tabelaDeProcessos.tabela.length) {
+			throw new IllegalArgumentException("Nao eh possivel acessar o indice "
+					+ indice + " posicao invalida");
+		}
+		
+		return this.tabelaDeProcessos.tabela[indice];
+	}
+	
+	public void liberarEntradaNaTabelaDeProcessos(BCP bcp) {
+		
+		if(bcp == null) {
+			throw new IllegalArgumentException("Nao eh possivel acessar um elemento null");
+		}
+		
+		for(int i = 0; i < this.tabelaDeProcessos.tabela.length; i++) {
+			if(this.tabelaDeProcessos.tabela[i] == bcp) {
+				this.tabelaDeProcessos.tabela[i] = null;
+				this.tabelaDeProcessos.filaDeEspacosDisponiveis.add(i);
+				break;
+			}
+		}
 	}
 }
