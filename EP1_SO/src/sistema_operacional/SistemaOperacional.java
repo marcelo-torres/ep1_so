@@ -31,7 +31,7 @@ public class SistemaOperacional {
 	private String diretorioDeArquivos;
 	
 	protected final int TEMPO_DE_ESPERA;
-	private final int QUANTUM;
+	protected final int QUANTUM;
 	
 	private FilaDePrioridade[] filaDePronto;
 	private LinkedList<BCP> filaDeBloqueado;
@@ -84,7 +84,7 @@ public class SistemaOperacional {
 	/* ###################################################################### */
 	
 	
-	private FilaDePrioridade[] criarFilaDePronto() throws FileNotFoundException {
+	protected FilaDePrioridade[] criarFilaDePronto() throws FileNotFoundException {
 		
 		int maiorPrioridade = this.obterMaiorPrioridade();
 		
@@ -93,7 +93,7 @@ public class SistemaOperacional {
 		return filaDePrioridade;
 	}
 	
-	private void inicializarFilaDePronto(FilaDePrioridade[] filaDePronto) {
+	protected void inicializarFilaDePronto(FilaDePrioridade[] filaDePronto) {
 		for(int prioridade = 0; prioridade < filaDePronto.length; prioridade++) {
 			filaDePronto[prioridade] = new FilaDePrioridade(prioridade);
 		}
@@ -102,7 +102,7 @@ public class SistemaOperacional {
 	/**
 	 * Retorna a maior prioridade possivel dado o arquivo de prioridades
 	 */
-	private int obterMaiorPrioridade() throws FileNotFoundException {
+	protected int obterMaiorPrioridade() throws FileNotFoundException {
 		
 		int maiorPrioridade = 0;
 		
@@ -147,7 +147,7 @@ public class SistemaOperacional {
 	/* ###################################################################### */
 	
 	
-	public void criarProcessosDeInicializacao() throws FileNotFoundException {
+	protected void criarProcessosDeInicializacao() throws FileNotFoundException {
 		
 		File arquivoDePrioridades = new File(this.diretorioDeArquivos + this.nomeDoArquivoDePrioridades);
 		
@@ -163,7 +163,7 @@ public class SistemaOperacional {
 		}
 	}
 	
-	private BCP criarProcesso(String nomeDoArquivo, int prioridadeDoProcesso) throws FileNotFoundException {
+	protected BCP criarProcesso(String nomeDoArquivo, int prioridadeDoProcesso) throws FileNotFoundException {
 		
 		// Cria o processo
 		File arquivoDeProcesso = new File(this.diretorioDeArquivos + nomeDoArquivo);
@@ -184,7 +184,7 @@ public class SistemaOperacional {
 	/**
 	 *  Devolve o numero do arquivo no qual o processo esta guardado
 	 */
-	private int obterNumeroDoArquivo(String nomeDoArquivo) {
+	protected int obterNumeroDoArquivo(String nomeDoArquivo) {
 		
 		String extensao = ".txt";
 		int limite = nomeDoArquivo.length() - extensao.length();
@@ -201,7 +201,7 @@ public class SistemaOperacional {
 	/* ###################################################################### */
 	
 	
-	public void iniciarExecucaoDeProcessos() throws IOException {
+	protected void iniciarExecucaoDeProcessos() throws IOException {
 	
 		GeradorDeLog.exibirMensagemDeCarregamento(this.filaDePronto);
 		
@@ -209,7 +209,7 @@ public class SistemaOperacional {
 		
 		while(this.existeProcesso()) {
 			
-			if(escalonador.necessarioRedistribuirCreditos()) {
+			if(this.necessarioRedistribuirCreditos()) {
 				this.redistribuirCreditos();
 			}
 			
@@ -219,29 +219,22 @@ public class SistemaOperacional {
 				this.despachador.restaurarContexto(bcpDoProcessoEscalonado);
 				this.relogio.definirLimiteDeCiclos(bcpDoProcessoEscalonado.quantumDoProcesso);
 				this.relogio.zerarRelogio();
-				
 				this.numeroDeTrocas++;
-				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum();
 				
 				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
 				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 				try {
 					int numeroDeInstrucoesExecutadas = this.processador.executar();
 					
-					this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
-					
-					// Se nenhuma interrupcao for gerada significa que o processo
-					// chegou ao seu final
+					this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
+					// Se nenhuma interrupcao for gerada significa que o processo chegou ao seu final
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
-					
-					// TODO remover esse metodo aqui, colocar no SO
 					this.liberarEntradaNaTabelaDeProcessos(bcpDoProcessoEscalonado);
-					
 					this.numeroDeIntrucoesExecutadas += bcpDoProcessoEscalonado.valorDoContadorDePrograma;
 					
 					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
-					this.numeroDeQuantaExecutados += Math.ceil(ir.quantidadeDeCiclosExecutados() / (double)this.QUANTUM);
+					this.contabilizarQuantaUtilizado(ir.quantidadeDeCiclosExecutados());
 					
 					boolean inserirNaFrente = this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado, inserirNaFrente);
@@ -250,20 +243,20 @@ public class SistemaOperacional {
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
-					this.numeroDeQuantaExecutados += Math.ceil(ies.quantidadeDeCiclosExecutados() / (double)this.QUANTUM);
+					this.contabilizarQuantaUtilizado(ies.quantidadeDeCiclosExecutados());
 					
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
 					
-					System.out.println("E/S iniciada em " + bcpDoProcessoEscalonado.nomeDoProcesso);
+					GeradorDeLog.exibirMensagemDeEntradaSaida(bcpDoProcessoEscalonado.nomeDoProcesso);
 					GeradorDeLog.exibirMensagemDeInterrupcao(
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ies.quantidadeDeCiclosExecutados());
 				}
 			}
 			
-			escalonador.decrementarFilaDeBloqueado();
-			LinkedList<BCP> desbloqueados = escalonador.obterListaDeDesbloqueados();
+			this.decrementarFilaDeBloqueado();
+			LinkedList<BCP> desbloqueados = this.escalonador.obterListaDeDesbloqueados();
 			
 			for(BCP bcp : desbloqueados) {
 				this.escalonador.inserirNaFilaDePronto(bcp, false);
@@ -277,13 +270,19 @@ public class SistemaOperacional {
 										  this.QUANTUM);
 	}
 	
+	protected void contabilizarQuantaUtilizado(int numeroDeInstrucoesExecutadas) {
+		this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
+	}
+	
 	protected boolean existeProcesso() {
 		return this.quantidadeTotalDeProcessos > 0;
 	}
 	
+	protected boolean necessarioRedistribuirCreditos() {
+		return this.quantidadeTotalDeProcessos == this.quantidadeDeProcessosProntosSemCreditos;
+	}
 	
-	
-	public boolean redistribuirCreditos() {
+	protected boolean redistribuirCreditos() {
 		
 		if(this.quantidadeTotalDeProcessos != this.quantidadeDeProcessosProntosSemCreditos) {
 			return false;
@@ -308,13 +307,19 @@ public class SistemaOperacional {
 		return true;
 	}
 	
+	protected void decrementarFilaDeBloqueado() {
+		for(BCP bcp : this.filaDeBloqueado) {
+			bcp.tempoDeEspera--;
+		}
+	}
+	
 	
 	
 	/* ###################################################################### */
 	/* ################ GERENCIAMENTO DA TABELA DE PROCESSOS ################ */
 	/* ###################################################################### */
 	
-	public int inserirBcpNaTabelaDeProcessos(BCP bcp) {
+	protected int inserirBcpNaTabelaDeProcessos(BCP bcp) {
 		
 		if(this.tabelaDeProcessos.filaDeEspacosDisponiveis.size() == 0) {
 			return -1;
@@ -326,7 +331,7 @@ public class SistemaOperacional {
 		return indice;
 	}
 	
-	public BCP acessarBcpNoIndiceNaTabela(int indice) {
+	protected BCP acessarBcpNoIndiceNaTabela(int indice) {
 		
 		if(indice < 0 || indice > this.tabelaDeProcessos.tabela.length) {
 			throw new IllegalArgumentException("Nao eh possivel acessar o indice "
@@ -336,7 +341,7 @@ public class SistemaOperacional {
 		return this.tabelaDeProcessos.tabela[indice];
 	}
 	
-	public void liberarEntradaNaTabelaDeProcessos(BCP bcp) {
+	protected void liberarEntradaNaTabelaDeProcessos(BCP bcp) {
 		
 		if(bcp == null) {
 			throw new IllegalArgumentException("Nao eh possivel acessar um elemento null");

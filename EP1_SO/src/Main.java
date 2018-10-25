@@ -2,6 +2,10 @@ import computador.Computador;
 
 public class Main {
 
+	/**
+	 * Realiza varios testes com o quantum variando de 1 ate 22, ignorando o
+	 * quantum informado no arquivo
+	 */
 	public static void execucaoDeTesteDeQuantum() {
 		
 		int quantumMaximo = 22;
@@ -17,6 +21,9 @@ public class Main {
 		}
 	}
 	
+	/*
+	 * Executa normalmente, isto eh, le o quantum do arquivo.
+	 */
 	public static void execucaoNormal() {
 		try {
 			Computador computador = new Computador();

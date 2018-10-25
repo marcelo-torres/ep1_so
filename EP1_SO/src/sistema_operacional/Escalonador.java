@@ -116,11 +116,6 @@ public class Escalonador {
 		return bcp;	
 	}
 	
-	protected boolean necessarioRedistribuirCreditos() {
-		return this.sistemaOperacional.quantidadeTotalDeProcessos == this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos;
-	}
-	
-	
 	protected void inserirNaFilaDeBloqueado(BCP bcp) {
 		
 		bcp.estadoDoProcesso = EstadosDeProcesso.BLOQUEADO;
@@ -129,13 +124,6 @@ public class Escalonador {
 		this.filaDeBloqueado.addLast(bcp);
 		
 		this.sistemaOperacional.quantidadeTotalDeProcessos++;
-	}
-	
-	protected void decrementarFilaDeBloqueado() {
-		
-		for(BCP bcp : this.filaDeBloqueado) {
-			bcp.tempoDeEspera--;
-		}
 	}
 	
 	protected LinkedList<BCP> obterListaDeDesbloqueados() {
