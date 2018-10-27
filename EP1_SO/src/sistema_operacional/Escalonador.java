@@ -71,6 +71,7 @@ public class Escalonador {
 	}
 	
 	protected boolean inserirNaFilaDePronto(BCP bcp,  boolean insercaoNaFrente) {
+	
 		
 		bcp.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
@@ -85,8 +86,14 @@ public class Escalonador {
 		if(bcp.creditosDoProcesso == 0) {
 			this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos++;
 		}
-		
-		return true;
+	
+		throw new RuntimeException("\n\nleia\n\nSE O PROCESSO FOR PARA A FILA ZERO ELE TEM Q SER"
+				+ "INSERIDO NO FINAAAALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL!!!!"
+				+ "\n"
+				+ "NAO IMPORTA SE ELE VEM N SEI DE ONDE, ELE VAI PRO FINAL.\n"
+				+ "QUUUANDO UM PROCESSO SAI DA FILA DE BLOQUEADO ELE EH INSERIDO ---NA FRENTE---"
+				+ "DA FILA, A MENOS QUEEEEE SEJA A FILA ZEEERROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n");
+		//return true;
 	}
 	
 	/**

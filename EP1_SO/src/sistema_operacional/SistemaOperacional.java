@@ -231,12 +231,14 @@ public class SistemaOperacional {
 				this.relogio.zerarRelogio();
 				this.numeroDeTrocas++;
 				
+				this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
+				
 				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
 				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 				try {
 					int numeroDeInstrucoesExecutadas = this.processador.executar();
 					
-					this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
+					//this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
 					// Se nenhuma interrupcao for gerada significa que o processo chegou ao seu final
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.liberarEntradaNaTabelaDeProcessos(bcpDoProcessoEscalonado);
@@ -244,7 +246,7 @@ public class SistemaOperacional {
 					
 					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
-					this.contabilizarQuantaUtilizado(ir.quantidadeDeCiclosExecutados());
+					//this.contabilizarQuantaUtilizado(ir.quantidadeDeCiclosExecutados());
 					
 					boolean inserirNaFrente = this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado, inserirNaFrente);
@@ -253,7 +255,7 @@ public class SistemaOperacional {
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
-					this.contabilizarQuantaUtilizado(ies.quantidadeDeCiclosExecutados());
+					//this.contabilizarQuantaUtilizado(ies.quantidadeDeCiclosExecutados());
 					
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
@@ -280,7 +282,7 @@ public class SistemaOperacional {
 										  this.QUANTUM);
 	}
 	
-	protected void contabilizarQuantaUtilizado(int numeroDeInstrucoesExecutadas) {
+	protected void contabilizarQuantaUtido(int numeroDeInstrucoesExecutadas) {
 		this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
 	}
 	
@@ -311,6 +313,7 @@ public class SistemaOperacional {
 			FilaDePrioridade filaDePrioridadeCorrespondente = this.escalonador.filaDePrioridadeCorrespondente(bcp);
 			
 			bcp.creditosDoProcesso = prioridade;
+			bcp.quantitadeDeQuantum = 1;
 			filaDePrioridadeCorrespondente.inserirOrdenado(bcp);
 		}
 		
