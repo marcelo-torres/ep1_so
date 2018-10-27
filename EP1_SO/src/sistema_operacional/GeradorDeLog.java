@@ -50,34 +50,34 @@ public class GeradorDeLog {
 			
 			while(iterador.hasNext()) {
 				BCP bcp = iterador.next();
-				GeradorDeLog.escritorDoLog.write("Carregando " + bcp.nomeDoProcesso + "\n");
+				GeradorDeLog.escritorDoLog.append("Carregando " + bcp.nomeDoProcesso + "\n");
 			}
 		}
 		
 	}
 	
 	public static void exibirMensagemDeExecucao(String nomeDoProcesso) throws IOException {
-		GeradorDeLog.escritorDoLog.write("Executando " + nomeDoProcesso + "\n");
+		GeradorDeLog.escritorDoLog.append("Executando " + nomeDoProcesso + "\n");
 	}
 	
 	public static void exibirMensagemDeEntradaSaida(String nomeDoProcesso) throws IOException {
-		GeradorDeLog.escritorDoLog.write("E/S iniciada em " + nomeDoProcesso + "\n");
+		GeradorDeLog.escritorDoLog.append("E/S iniciada em " + nomeDoProcesso + "\n");
 	}
 	
 	public static void exibirMensagemDeInterrupcao(String nomeDoProcesso,
 				int quantidadeDeCiclosExecutados) throws IOException {
 		
 		if(quantidadeDeCiclosExecutados == 1) {
-			GeradorDeLog.escritorDoLog.write("Interrompendo " + nomeDoProcesso
+			GeradorDeLog.escritorDoLog.append("Interrompendo " + nomeDoProcesso
 					+ " após " + quantidadeDeCiclosExecutados + " instrução.\n");
 		} else {
-			GeradorDeLog.escritorDoLog.write("Interrompendo " + nomeDoProcesso
+			GeradorDeLog.escritorDoLog.append("Interrompendo " + nomeDoProcesso
 					+ " após " + quantidadeDeCiclosExecutados + " instruções.\n");
 		}
 	}
 	
 	public static void exibirMensagemDeFimDeExecucao(BCP bcp)  throws IOException {
-		GeradorDeLog.escritorDoLog.write(bcp.nomeDoProcesso + " terminado. "
+		GeradorDeLog.escritorDoLog.append(bcp.nomeDoProcesso + " terminado. "
 										+ "X=" + bcp.valorDoRegistradorX
 										+ ". Y=" + bcp.valorDoRegistradorY + "\n");
 	}
@@ -91,7 +91,7 @@ public class GeradorDeLog {
 		double mediaDeTrocas = numeroDeTrocas / (double)numeroDeProcessosCriados;
 		double mediaDeInstrucoes = numeroDeIntrucoesExecutadas / (double) numeroDeQuantaExecutados;
 		
-		GeradorDeLog.escritorDoLog.write("MEDIA DE TROCAS: " + mediaDeTrocas + "\n"
+		GeradorDeLog.escritorDoLog.append("MEDIA DE TROCAS: " + mediaDeTrocas + "\n"
 										 + "MEDIA DE INSTRUCOES: " + mediaDeInstrucoes + "\n"
 										 + "QUANTUM: " + quantum + "\n");
 		
@@ -111,7 +111,7 @@ public class GeradorDeLog {
 					 + mediaDeTrocas + ";"
 					 + numeroDeIntrucoesExecutadas + ";\n";
 		
-		escritor.write(linha);
+		escritor.append(linha);
 		escritor.close();
 	}
 }

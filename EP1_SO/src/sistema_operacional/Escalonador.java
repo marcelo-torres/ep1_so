@@ -42,13 +42,13 @@ public class Escalonador {
 	 * Devolve a fila de prioridade da fila de pronto correspondente ao bcp
 	 * passado por parametro
 	 */
-	protected FilaDePrioridade filaDePrioridadeCorrespondente(BCP bcp) {
+	protected FilaDePrioridade filaDePrioridadeCorrespondente(int creditos) {
 		
-		if(bcp.creditosDoProcesso >= this.filaDePronto.length) {
+		if(creditos >= this.filaDePronto.length) {
 			throw new IllegalArgumentException("O processo possui mais creditos do que o valor maximo da fila");
 		}
 		
-		int indiceDaFilaDeInsercao = bcp.creditosDoProcesso;
+		int indiceDaFilaDeInsercao = creditos;
 		return this.filaDePronto[indiceDaFilaDeInsercao];
 	}
 	
@@ -59,7 +59,7 @@ public class Escalonador {
 	 */
 	protected void inserirOrdenadoNaFilaDePronto(BCP bcp) {
 		
-		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
+		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp.creditosDoProcesso);
 		filaDeInsercao.fila.addLast(bcp);
 		Collections.sort(filaDeInsercao.fila);
 		
@@ -70,31 +70,23 @@ public class Escalonador {
 		}
 	}
 	
-	protected boolean inserirNaFilaDePronto(BCP bcp,  boolean insercaoNaFrente) {
-	
+	protected void inserirNaFilaDePronto(BCP bcp) {
 		
 		bcp.estadoDoProcesso = EstadosDeProcesso.PRONTO;
-		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp);
+		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp.creditosDoProcesso);
 		
-		if(insercaoNaFrente) {
+		if(bcp.creditosDoProcesso == 0) {
 			filaDeInsercao.fila.addFirst(bcp);
 		} else {
-			filaDeInsercao.inserirNoFinal(bcp);
-		}
-		this.sistemaOperacional.quantidadeTotalDeProcessos++;
-		this.sistemaOperacional.quantidadeDeProcessosProntos++;
-		if(bcp.creditosDoProcesso == 0) {
+			filaDeInsercao.fila.addLast(bcp);
 			this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos++;
 		}
-	
-		throw new RuntimeException("\n\nleia\n\nSE O PROCESSO FOR PARA A FILA ZERO ELE TEM Q SER"
-				+ "INSERIDO NO FINAAAALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL!!!!"
-				+ "\n"
-				+ "NAO IMPORTA SE ELE VEM N SEI DE ONDE, ELE VAI PRO FINAL.\n"
-				+ "QUUUANDO UM PROCESSO SAI DA FILA DE BLOQUEADO ELE EH INSERIDO ---NA FRENTE---"
-				+ "DA FILA, A MENOS QUEEEEE SEJA A FILA ZEEERROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n");
-		//return true;
+		
+		this.sistemaOperacional.quantidadeTotalDeProcessos++;
+		this.sistemaOperacional.quantidadeDeProcessosProntos++;
 	}
+	
+
 	
 	/**
 	 * Devolve o proximo BCP da estrutura com maior prioridade, ou null caso

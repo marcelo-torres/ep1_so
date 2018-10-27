@@ -181,10 +181,8 @@ public class SistemaOperacional {
 		this.inserirBcpNaTabelaDeProcessos(bcp);
 		
 		bcp.prioridadeDoProcesso = prioridadeDoProcesso;
-		bcp.creditosDoProcesso = prioridadeDoProcesso;
-		bcp.quantitadeDeQuantum = 1;
-		bcp.quantumDoProcesso = this.QUANTUM;
 		bcp.numeroDoArquivo = this.obterNumeroDoArquivo(nomeDoArquivo);
+		this.redefinirCreditos(bcp);
 		
 		this.numeroDeProcessosCriados++;
 		
@@ -202,6 +200,16 @@ public class SistemaOperacional {
 		String aux = nomeDoArquivo.substring(0, limite);
 		int numero = Integer.valueOf(aux);
 		return numero;
+	}
+	
+	/*
+	 * Reseta os creditos, a quantidade de quantum e o quantum para os valores
+	 * iniciais
+	 */
+	protected void redefinirCreditos(BCP bcp) {
+		bcp.creditosDoProcesso = bcp.prioridadeDoProcesso;
+		bcp.quantitadeDeQuantum = 1;
+		bcp.quantumDoProcesso = this.QUANTUM;
 	}
 	
 	
@@ -231,12 +239,13 @@ public class SistemaOperacional {
 				this.relogio.zerarRelogio();
 				this.numeroDeTrocas++;
 				
-				this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
+				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
 				
 				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
 				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
+				int numeroDeInstrucoesExecutadas = 0;
 				try {
-					int numeroDeInstrucoesExecutadas = this.processador.executar();
+					numeroDeInstrucoesExecutadas = this.processador.executar();
 					
 					//this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
 					// Se nenhuma interrupcao for gerada significa que o processo chegou ao seu final
@@ -246,15 +255,17 @@ public class SistemaOperacional {
 					
 					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
+					numeroDeInstrucoesExecutadas = ir.quantidadeDeCiclosExecutados();
 					//this.contabilizarQuantaUtilizado(ir.quantidadeDeCiclosExecutados());
 					
 					boolean inserirNaFrente = this.despachador.salvarContexto(bcpDoProcessoEscalonado);
-					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado, inserirNaFrente);
+					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado);
 					
 					GeradorDeLog.exibirMensagemDeInterrupcao(
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
+					numeroDeInstrucoesExecutadas = ies.quantidadeDeCiclosExecutados();
 					//this.contabilizarQuantaUtilizado(ies.quantidadeDeCiclosExecutados());
 					
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
@@ -265,13 +276,15 @@ public class SistemaOperacional {
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ies.quantidadeDeCiclosExecutados());
 				}
+				
+				this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
 			}
 			
 			this.decrementarFilaDeBloqueado();
 			LinkedList<BCP> desbloqueados = this.escalonador.obterListaDeDesbloqueados();
 			
 			for(BCP bcp : desbloqueados) {
-				this.escalonador.inserirNaFilaDePronto(bcp, false);
+				this.escalonador.inserirNaFilaDePronto(bcp);
 			}
 		}
 		
@@ -282,7 +295,7 @@ public class SistemaOperacional {
 										  this.QUANTUM);
 	}
 	
-	protected void contabilizarQuantaUtido(int numeroDeInstrucoesExecutadas) {
+	protected void contabilizarQuantaUtilizado(int numeroDeInstrucoesExecutadas) {
 		this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
 	}
 	
@@ -300,21 +313,20 @@ public class SistemaOperacional {
 			return false;
 		}
 		
-		FilaDePrioridade filaDePrioridade = this.filaDePronto[0];
+		FilaDePrioridade filaDeCreditoZero = this.filaDePronto[0];
 		
-		while(filaDePrioridade.tamanho() > 0) {
-			BCP bcp = filaDePrioridade.removerPrimeiro();
+		while(filaDeCreditoZero.tamanho() > 0) {
+			BCP bcp = filaDeCreditoZero.removerPrimeiro();
 			this.quantidadeDeProcessosProntosSemCreditos--;
-			//this.quantidadeDeProcessosProntos--;
-			//this.quantidadeTotalDeProcessos--;
 			
-			int prioridade = bcp.prioridadeDoProcesso;
+			FilaDePrioridade filaDePrioridadeCorrespondente =this.escalonador.filaDePrioridadeCorrespondente(bcp.creditosDoProcesso);
 			
-			FilaDePrioridade filaDePrioridadeCorrespondente = this.escalonador.filaDePrioridadeCorrespondente(bcp);
-			
-			bcp.creditosDoProcesso = prioridade;
-			bcp.quantitadeDeQuantum = 1;
+			this.redefinirCreditos(bcp);
 			filaDePrioridadeCorrespondente.inserirOrdenado(bcp);
+		}
+		
+		for(BCP bcp : this.filaDeBloqueado) {
+			this.redefinirCreditos(bcp);
 		}
 		
 		return true;

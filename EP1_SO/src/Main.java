@@ -1,3 +1,5 @@
+import java.io.File;
+
 import computador.Computador;
 
 /**
@@ -46,8 +48,12 @@ public class Main {
 	
 	public static void main(String[] args) {
 	
-		//System.out.println("aghhh");
-		//java.util.Locale.setDefault(new java.util.Locale("PORTUGUESE"));
+		try {
+			File diretorioDeLogs = new File("logs/");
+			diretorioDeLogs.mkdir();
+		} catch(Exception e) {
+			System.out.println("Nao foi possivel salvar o diretorio de logs");
+		}
 		
 		execucaoDeTesteDeQuantum();
 		//execucaoNormal();
