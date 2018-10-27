@@ -13,6 +13,11 @@ import java.util.LinkedList;
  * 
  */
 
+/*
+ * Responsavel por gerenciar as filas e definir qual processo sera o proximo a
+ * ser executado.
+ */
+
 public class Escalonador {
 	
 	protected SistemaOperacional sistemaOperacional;

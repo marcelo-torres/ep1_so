@@ -1,5 +1,10 @@
 package computador;
 
+/*
+ * Responsavel por gerar os ciclos de execucao. Tambem define e valida o limite
+ * de ciclos.
+ */
+
 public class Relogio {
 
 	private int contadorDeCiclos;

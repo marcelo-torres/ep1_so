@@ -22,6 +22,12 @@ import computador.Relogio;
  * 
  */
 
+/*
+ * Recebe o vetor inicial de processos e o arquivo de prioridades. Eh responsavel
+ * criar e inicializar as filas e os processos, gerenciar a tabela de processos
+ * e as prioridades.
+ */
+
 public class SistemaOperacional {
 	
 	private String[] vetorDeProcessosInicias = {
@@ -221,7 +227,7 @@ public class SistemaOperacional {
 	
 	protected void iniciarExecucaoDeProcessos() throws IOException {
 	
-		GeradorDeLog.exibirMensagemDeCarregamento(this.filaDePronto);
+		GeradorDeLog.escreverMensagemDeCarregamento(this.filaDePronto);
 		
 		BCP bcpDoProcessoEscalonado = null;
 		
@@ -241,7 +247,7 @@ public class SistemaOperacional {
 				
 				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
 				
-				GeradorDeLog.exibirMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
+				GeradorDeLog.escreverMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
 				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 				int numeroDeInstrucoesExecutadas = 0;
 				try {
@@ -253,7 +259,7 @@ public class SistemaOperacional {
 					this.liberarEntradaNaTabelaDeProcessos(bcpDoProcessoEscalonado);
 					this.numeroDeIntrucoesExecutadas += bcpDoProcessoEscalonado.valorDoContadorDePrograma;
 					
-					GeradorDeLog.exibirMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
+					GeradorDeLog.escreverMensagemDeFimDeExecucao(bcpDoProcessoEscalonado);
 				} catch(InterrupcaoDeRelogio ir) {
 					numeroDeInstrucoesExecutadas = ir.quantidadeDeCiclosExecutados();
 					//this.contabilizarQuantaUtilizado(ir.quantidadeDeCiclosExecutados());
@@ -261,7 +267,7 @@ public class SistemaOperacional {
 					boolean inserirNaFrente = this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDePronto(bcpDoProcessoEscalonado);
 					
-					GeradorDeLog.exibirMensagemDeInterrupcao(
+					GeradorDeLog.escreverMensagemDeInterrupcao(
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ir.quantidadeDeCiclosExecutados());
 				} catch(InterrupcaoDeEntradaSaida ies) {
@@ -271,8 +277,8 @@ public class SistemaOperacional {
 					this.despachador.salvarContexto(bcpDoProcessoEscalonado);
 					this.escalonador.inserirNaFilaDeBloqueado(bcpDoProcessoEscalonado);
 					
-					GeradorDeLog.exibirMensagemDeEntradaSaida(bcpDoProcessoEscalonado.nomeDoProcesso);
-					GeradorDeLog.exibirMensagemDeInterrupcao(
+					GeradorDeLog.escreverMensagemDeEntradaSaida(bcpDoProcessoEscalonado.nomeDoProcesso);
+					GeradorDeLog.escreverMensagemDeInterrupcao(
 							bcpDoProcessoEscalonado.nomeDoProcesso,
 							ies.quantidadeDeCiclosExecutados());
 				}
@@ -288,7 +294,7 @@ public class SistemaOperacional {
 			}
 		}
 		
-		GeradorDeLog.imprimirEstatisticas(this.numeroDeProcessosCriados,
+		GeradorDeLog.escreverEstatisticas(this.numeroDeProcessosCriados,
 										  this.numeroDeTrocas,
 										  this.numeroDeQuantaExecutados,
 										  this.numeroDeIntrucoesExecutadas,

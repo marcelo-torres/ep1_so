@@ -2,6 +2,10 @@ package sistema_operacional;
 
 import java.util.PriorityQueue;
 
+/*
+ * Simula uma tabela de processos de acordo com o tamanho do BCP.
+ */
+
 public class TabelaDeProcessos {
 	
 	protected final int NUMERO_ESPACOS_DISPONIVEIS;

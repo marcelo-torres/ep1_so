@@ -5,6 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 
+/*
+ * Responsavel por gerar um arquivo de estatisticas sobre a execucao num arquivo
+ * .csv. No arquivo eh escrito o quantum utilizado, as medias de instrucoes e
+ * trocas, e o total de instrucoes executadas. Tambem eh a responsavel por gravar
+ * nesse arquivo a sequencia de execucao dos processos e as interrupcoes ocorridas.
+ */
+
 public class GeradorDeLog {
 
 	private static String nomeDoArquivoDeEstatisticas = "estatisticas.csv";
@@ -41,7 +48,7 @@ public class GeradorDeLog {
 		}
 	}
 	
-	public static void exibirMensagemDeCarregamento(FilaDePrioridade[] filaDePronto) throws IOException {
+	public static void escreverMensagemDeCarregamento(FilaDePrioridade[] filaDePronto) throws IOException {
 		
 		for(int prioridade = filaDePronto.length - 1; prioridade >= 0; prioridade--) {
 			
@@ -56,15 +63,15 @@ public class GeradorDeLog {
 		
 	}
 	
-	public static void exibirMensagemDeExecucao(String nomeDoProcesso) throws IOException {
+	public static void escreverMensagemDeExecucao(String nomeDoProcesso) throws IOException {
 		GeradorDeLog.escritorDoLog.append("Executando " + nomeDoProcesso + "\n");
 	}
 	
-	public static void exibirMensagemDeEntradaSaida(String nomeDoProcesso) throws IOException {
+	public static void escreverMensagemDeEntradaSaida(String nomeDoProcesso) throws IOException {
 		GeradorDeLog.escritorDoLog.append("E/S iniciada em " + nomeDoProcesso + "\n");
 	}
 	
-	public static void exibirMensagemDeInterrupcao(String nomeDoProcesso,
+	public static void escreverMensagemDeInterrupcao(String nomeDoProcesso,
 				int quantidadeDeCiclosExecutados) throws IOException {
 		
 		if(quantidadeDeCiclosExecutados == 1) {
@@ -76,13 +83,13 @@ public class GeradorDeLog {
 		}
 	}
 	
-	public static void exibirMensagemDeFimDeExecucao(BCP bcp)  throws IOException {
+	public static void escreverMensagemDeFimDeExecucao(BCP bcp)  throws IOException {
 		GeradorDeLog.escritorDoLog.append(bcp.nomeDoProcesso + " terminado. "
 										+ "X=" + bcp.valorDoRegistradorX
 										+ ". Y=" + bcp.valorDoRegistradorY + "\n");
 	}
 	
-	public static void imprimirEstatisticas(int numeroDeProcessosCriados,
+	public static void escreverEstatisticas(int numeroDeProcessosCriados,
 											int numeroDeTrocas,
 											int numeroDeQuantaExecutados,
 											int numeroDeIntrucoesExecutadas,

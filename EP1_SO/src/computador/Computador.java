@@ -7,6 +7,11 @@ import java.util.Scanner;
 import computador.processador.Processador;
 import sistema_operacional.SistemaOperacional;
 
+/*
+ * Responsavel por iniciar o sistema. Eh quem recebe os processos e as definicoes
+ * de quantum e os redireciona aos cuidados do sistema operacional. 
+ */
+
 public class Computador {
 
 	private String diretorioPrincipal = "processos/";

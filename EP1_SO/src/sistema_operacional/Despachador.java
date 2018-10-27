@@ -12,6 +12,11 @@ import computador.processador.Processador;
  * 
  */
 
+/**
+ * Responsavel por fazer salvar e ler dados dos BCPs. Tambem e sua tarefa
+ * decrementar a quantidade de creditos e duplicar o quantum do processo.
+ */
+
 public class Despachador {
 
 	protected Processador processador;

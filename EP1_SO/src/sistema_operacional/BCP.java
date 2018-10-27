@@ -6,6 +6,12 @@ import java.util.Scanner;
 
 import computador.processador.Registrador;
 
+/*
+ * Responsavel por gerenciar os processos, suas particularidades (prioridade,
+ * a que fila pertence, quantidade de creditos, tempo de espera, quantum, etc)
+ * e os registradores principais X e Y.
+ */
+
 public class BCP implements Comparable<BCP> {
 
 	protected static int NUMERO_MAXIMO_INSTRUCOES = 21;

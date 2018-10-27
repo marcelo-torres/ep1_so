@@ -4,6 +4,12 @@ import computador.Relogio;
 import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
 
+/*
+ * Gerencia os registradores e os contadores. Eh responsavel por executar as 
+ * instrucoes, estando sujeita a lancar excecoes em forma de interrupcoes de
+ * E/S ou de relogio.
+ */
+
 public class Processador {
 
 	private Relogio relogio;

@@ -1,5 +1,10 @@
 package computador.processador;
 
+/*
+ * Responsavel por armazenar valores. Tambem realiza copia de valores de outros
+ * objetos desse tipo.
+ */
+
 public class Registrador {
 
 	private int valorArmazenado;

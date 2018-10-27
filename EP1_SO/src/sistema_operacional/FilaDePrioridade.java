@@ -3,6 +3,11 @@ import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * Simula uma fila de prioridades com creditos. Possui metodos basicos de
+ * insercao e remocao, alem de verificacao de tamanho e iteracao. 
+ */
+
 public class FilaDePrioridade implements Comparable<FilaDePrioridade> {
 	
 	private int creditos;
