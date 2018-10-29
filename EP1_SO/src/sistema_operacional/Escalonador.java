@@ -71,7 +71,7 @@ public class Escalonador {
 		this.sistemaOperacional.quantidadeTotalDeProcessos++;
 		this.sistemaOperacional.quantidadeDeProcessosProntos++;
 		if(bcp.creditosDoProcesso == 0) {
-			this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos++;
+			this.sistemaOperacional.quantidadeDeProcessosSemCreditos++;
 		}
 	}
 	
@@ -80,11 +80,11 @@ public class Escalonador {
 		bcp.estadoDoProcesso = EstadosDeProcesso.PRONTO;
 		FilaDePrioridade filaDeInsercao = filaDePrioridadeCorrespondente(bcp.creditosDoProcesso);
 		
-		if(bcp.creditosDoProcesso == 0) {
+		if(bcp.creditosDoProcesso != 0) {
 			filaDeInsercao.fila.addFirst(bcp);
 		} else {
 			filaDeInsercao.fila.addLast(bcp);
-			this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos++;
+			this.sistemaOperacional.quantidadeDeProcessosSemCreditos++;
 		}
 		
 		this.sistemaOperacional.quantidadeTotalDeProcessos++;
@@ -124,7 +124,7 @@ public class Escalonador {
 		this.sistemaOperacional.quantidadeTotalDeProcessos--;
 		this.sistemaOperacional.quantidadeDeProcessosProntos--;
 		if(bcp.creditosDoProcesso == 0) {
-			this.sistemaOperacional.quantidadeDeProcessosProntosSemCreditos--;
+			this.sistemaOperacional.quantidadeDeProcessosSemCreditos--;
 		}
 		
 		return bcp;	
@@ -136,6 +136,10 @@ public class Escalonador {
 		
 		bcp.tempoDeEspera = this.sistemaOperacional.TEMPO_DE_ESPERA;
 		this.filaDeBloqueado.addLast(bcp);
+		
+		if(bcp.creditosDoProcesso == 0) {
+			this.sistemaOperacional.quantidadeDeProcessosSemCreditos++;
+		}
 		
 		this.sistemaOperacional.quantidadeTotalDeProcessos++;
 	}
@@ -151,6 +155,10 @@ public class Escalonador {
 				this.filaDeBloqueado.removeFirst();
 				listaDeDesbloqueados.addLast(bcp);
 				this.sistemaOperacional.quantidadeTotalDeProcessos--;
+				
+				if(bcp.creditosDoProcesso == 0) {
+					this.sistemaOperacional.quantidadeDeProcessosSemCreditos--;
+				}
 			} else {
 				break;
 			}

@@ -59,13 +59,13 @@ public class SistemaOperacional {
 	private TabelaDeProcessos tabelaDeProcessos;
 	
 	private int numeroDeProcessosCriados;
-	private int numeroDeTrocas;
+	private int numeroDeTrocas = -1;
 	private int numeroDeQuantaExecutados;
 	private int numeroDeIntrucoesExecutadas;
 	
 	protected int quantidadeTotalDeProcessos;
 	protected int quantidadeDeProcessosProntos;
-	protected int quantidadeDeProcessosProntosSemCreditos;
+	protected int quantidadeDeProcessosSemCreditos;
 	
 	
 	
@@ -224,6 +224,23 @@ public class SistemaOperacional {
 	/* ################ GERENCIAMENTO DA TABELA DE PROCESSOS ################ */
 	/* ###################################################################### */
 	
+	// TODO remover
+	public void debugar() {
+		
+		for(int i = this.filaDePronto.length - 1; i >= 0; i--) {
+			
+			FilaDePrioridade f = this.filaDePronto[i];
+			
+			System.out.print(i + " -> ");
+			Object[] b = f.fila.toArray();
+			for(Object o : b) {
+				BCP bcp = (BCP)o;
+				System.out.print("["+bcp.nomeDoProcesso+" c=" + bcp.creditosDoProcesso + "] ");
+			}
+			System.out.println();
+		}
+		
+	}
 	
 	protected void iniciarExecucaoDeProcessos() throws IOException {
 	
@@ -239,7 +256,15 @@ public class SistemaOperacional {
 			
 			bcpDoProcessoEscalonado = this.escalonador.escalonar();
 			
+			this.decrementarFilaDeBloqueado();
+			LinkedList<BCP> desbloqueados = this.escalonador.obterListaDeDesbloqueados();
+			
 			if(bcpDoProcessoEscalonado != null) {
+				
+				//System.out.println("\nEscalonado: " + bcpDoProcessoEscalonado.nomeDoProcesso);
+				//debugar();
+				//System.out.println();
+				
 				this.despachador.restaurarContexto(bcpDoProcessoEscalonado);
 				this.relogio.definirLimiteDeCiclos(bcpDoProcessoEscalonado.quantumDoProcesso);
 				this.relogio.zerarRelogio();
@@ -286,9 +311,6 @@ public class SistemaOperacional {
 				this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
 			}
 			
-			this.decrementarFilaDeBloqueado();
-			LinkedList<BCP> desbloqueados = this.escalonador.obterListaDeDesbloqueados();
-			
 			for(BCP bcp : desbloqueados) {
 				this.escalonador.inserirNaFilaDePronto(bcp);
 			}
@@ -310,12 +332,12 @@ public class SistemaOperacional {
 	}
 	
 	protected boolean necessarioRedistribuirCreditos() {
-		return this.quantidadeTotalDeProcessos == this.quantidadeDeProcessosProntosSemCreditos;
+		return this.quantidadeTotalDeProcessos == this.quantidadeDeProcessosSemCreditos;
 	}
 	
 	protected boolean redistribuirCreditos() {
 		
-		if(this.quantidadeTotalDeProcessos != this.quantidadeDeProcessosProntosSemCreditos) {
+		if(this.quantidadeTotalDeProcessos != this.quantidadeDeProcessosSemCreditos) {
 			return false;
 		}
 		
@@ -323,7 +345,7 @@ public class SistemaOperacional {
 		
 		while(filaDeCreditoZero.tamanho() > 0) {
 			BCP bcp = filaDeCreditoZero.removerPrimeiro();
-			this.quantidadeDeProcessosProntosSemCreditos--;
+			this.quantidadeDeProcessosSemCreditos--;
 			
 			FilaDePrioridade filaDePrioridadeCorrespondente =this.escalonador.filaDePrioridadeCorrespondente(bcp.creditosDoProcesso);
 			
