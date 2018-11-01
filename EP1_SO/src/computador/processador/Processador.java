@@ -1,6 +1,9 @@
  package computador.processador;
 
 import computador.Relogio;
+
+import java.util.ArrayList;
+
 import computador.InterrupcaoDeEntradaSaida;
 import computador.InterrupcaoDeRelogio;
 
@@ -18,7 +21,7 @@ public class Processador {
 	private Registrador registradorX;
 	private Registrador registradorY;
 	
-	private String[] segmentoDeTexto;
+	private ArrayList<String> segmentoDeTexto;
 	
 	
 	public Processador(Relogio relogio) {
@@ -36,7 +39,7 @@ public class Processador {
 		
 		while(true) {
 			
-			String instrucao = this.segmentoDeTexto[this.contadorDePrograma.valorArmazenado()];
+			String instrucao = this.segmentoDeTexto.get(this.contadorDePrograma.valorArmazenado());
 			
 			this.contadorDePrograma.incrementar();
 			numeroDeInstrucoesExecutadas++;
@@ -97,11 +100,11 @@ public class Processador {
 		return this.registradorY.valorArmazenado();
 	}
 	
-	public void definirSegmentoDeTexto(String[] segmentoDeTexto) {
+	public void definirSegmentoDeTexto(ArrayList<String> segmentoDeTexto) {
 		this.segmentoDeTexto = segmentoDeTexto;
 	}
 	
-	public String[] segmentoDeTexto() {
+	public ArrayList<String> segmentoDeTexto() {
 		return this.segmentoDeTexto;
 	}
 }

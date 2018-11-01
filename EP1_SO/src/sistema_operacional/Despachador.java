@@ -1,5 +1,7 @@
 package sistema_operacional;
 
+import java.util.ArrayList;
+
 import computador.processador.Processador;
 
 /**
@@ -19,12 +21,15 @@ import computador.processador.Processador;
 
 public class Despachador {
 
+	protected SistemaOperacional sistemaOperacional;
 	protected Processador processador;
 	protected Escalonador escalonador;
 	
 	
 	
-	public Despachador(Processador processador, Escalonador escalonador) {
+	public Despachador(SistemaOperacional sistemaOperacional,
+					   Processador processador, Escalonador escalonador) {
+		this.sistemaOperacional = sistemaOperacional;
 		this.processador = processador;
 		this.escalonador = escalonador;
 	}
@@ -48,8 +53,8 @@ public class Despachador {
 				this.decrementarCreditosDoProcesso(bcp);
 				drecrementouOsCreditos = true;
 			}
-			this.duplicarQuantidadeDeQuantum(bcp);
-			this.duplicarQuantumDoProcesso(bcp);
+			this.aumentarQuantidadeDeQuantum(bcp);
+			this.aumentarQuantumDoProcesso(bcp);
 		}
 		
 		return drecrementouOsCreditos;
@@ -67,7 +72,7 @@ public class Despachador {
 		this.processador.definirValorDoRegistradorX(valorDoRegistradorX);
 		this.processador.definirValorDoRegistradorY(valorDoRegistradorY);
 		
-		String[] segmentoDeTexto = bcp.segmentoDeTexto;
+		ArrayList<String> segmentoDeTexto = bcp.segmentoDeTexto;
 		this.processador.definirSegmentoDeTexto(segmentoDeTexto);
 	}
 	
@@ -81,12 +86,12 @@ public class Despachador {
 		bcp.creditosDoProcesso--;
 	}
 	
-	protected void duplicarQuantidadeDeQuantum(BCP bcp) {
-		bcp.quantitadeDeQuantum *= 2;
+	protected void aumentarQuantidadeDeQuantum(BCP bcp) {
+		bcp.quantitadeDeQuantum++;
 	}
 	
-	protected void duplicarQuantumDoProcesso(BCP bcp) {
-		bcp.quantumDoProcesso *= 2;
+	protected void aumentarQuantumDoProcesso(BCP bcp) {
+		bcp.quantumDoProcesso += this.sistemaOperacional.QUANTUM;
 	}
 	
 	protected void decrementarTempoDeEspera(BCP bcp) {

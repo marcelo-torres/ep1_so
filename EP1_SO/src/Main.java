@@ -20,7 +20,7 @@ public class Main {
 	 */
 	public static void execucaoDeTesteDeQuantum() {
 		
-		int quantumMaximo = 22;
+		int quantumMaximo = 25;
 		
 		for(int quantum = 1; quantum <= quantumMaximo; quantum++) {
 			try {

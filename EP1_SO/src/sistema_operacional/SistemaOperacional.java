@@ -89,7 +89,7 @@ public class SistemaOperacional {
 		this.processador = processador;
 		this.escalonador = new Escalonador(this, this.filaDePronto,
 										   this.filaDeBloqueado);
-		this.despachador = new Despachador(processador, escalonador);
+		this.despachador = new Despachador(this, processador, escalonador);
 		this.tabelaDeProcessos = new TabelaDeProcessos(10);
 	}
 	
@@ -270,7 +270,7 @@ public class SistemaOperacional {
 				this.relogio.zerarRelogio();
 				this.numeroDeTrocas++;
 				
-				//this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
+				this.numeroDeQuantaExecutados += bcpDoProcessoEscalonado.quantitadeDeQuantum;
 				
 				GeradorDeLog.escreverMensagemDeExecucao(bcpDoProcessoEscalonado.nomeDoProcesso);
 				bcpDoProcessoEscalonado.estadoDoProcesso = EstadosDeProcesso.PRONTO;
@@ -308,7 +308,7 @@ public class SistemaOperacional {
 							ies.quantidadeDeCiclosExecutados());
 				}
 				
-				this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
+				//this.contabilizarQuantaUtilizado(numeroDeInstrucoesExecutadas);
 			}
 			
 			for(BCP bcp : desbloqueados) {
@@ -323,8 +323,9 @@ public class SistemaOperacional {
 										  this.QUANTUM);
 	}
 	
-	protected void contabilizarQuantaUtilizado(int numeroDeInstrucoesExecutadas) {
-		this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
+	protected void contabilizarQuantaUtilizadoa(int numeroDeInstrucoesExecutadas) {
+		//this.numeroDeQuantaExecutados += Math.ceil(numeroDeInstrucoesExecutadas / (double)this.QUANTUM);
+		
 	}
 	
 	protected boolean existeProcesso() {

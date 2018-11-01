@@ -2,6 +2,7 @@ package sistema_operacional;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import computador.processador.Registrador;
@@ -20,7 +21,7 @@ public class BCP implements Comparable<BCP> {
 	protected EstadosDeProcesso estadoDoProcesso = EstadosDeProcesso.BLOQUEADO;
 	
 	protected String nomeDoProcesso;
-	protected String[] segmentoDeTexto = new String[NUMERO_MAXIMO_INSTRUCOES];
+	protected ArrayList<String> segmentoDeTexto = new ArrayList<String>(NUMERO_MAXIMO_INSTRUCOES);
 	
 	protected int prioridadeDoProcesso;
 	protected int creditosDoProcesso;
@@ -50,7 +51,7 @@ public class BCP implements Comparable<BCP> {
 		
 		int i = 0;
 		while(leitor.hasNextLine()) {
-			this.segmentoDeTexto[i] = leitor.nextLine();
+			this.segmentoDeTexto.add(i, leitor.nextLine());
 			i++;
 		}
 		
